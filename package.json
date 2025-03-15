@@ -1,0 +1,27 @@
+{
+  "name": "online-judge-supporter",
+  "version": "0.0.1",
+  "description": "A tool to support competitve programmer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bibimoni/online-judge-supporter.git"
+  },
+  "keywords": [
+    "online",
+    "judge",
+    "supporter"
+  ],
+  "author": "bibimoni, huytran298",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bibimoni/online-judge-supporter/issues"
+  },
+  "homepage": "https://github.com/bibimoni/online-judge-supporter#readme",
+  "dependencies": {
+    "commander": "^13.1.0"
+  }
+}
