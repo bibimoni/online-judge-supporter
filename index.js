@@ -1,4 +1,4 @@
-const { get_data } = require('./parser/crawler');
+const { get_atcoder_samples } = require('./parser/crawler');
 
-get_data('https://atcoder.jp/contests/abc397/tasks/abc397_e')
+get_atcoder_samples('https://atcoder.jp/contests/abc397/tasks/abc397_e')
   .then(item => console.log(item));
