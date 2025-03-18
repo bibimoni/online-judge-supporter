@@ -1,4 +1,7 @@
-const { get_atcoder_samples } = require('./parser/crawler');
+const { Crawler } = require('./parser/crawler');
 
-get_atcoder_samples('https://atcoder.jp/contests/abc397/tasks/abc397_e')
-  .then(item => console.log(item));
+const crawler = new Crawler();
+
+crawler.get_problem('atcoder', 'abc397', 'abc397_e')
+  .then(item => console.log(item))
+  .catch(err => console.log(err));
