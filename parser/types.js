@@ -9,6 +9,15 @@ class ProblemData {
     this._timeLimit = timeLimit;
     this._tests = tests;
   }
+
+  editInput(index, input) {
+    this._tests[index].input = input;
+  }
+
+  editOutput(index, output) {
+    this._tests[index].output = output;
+  }
+
   set name(name) {
     this._name = name;
   }
@@ -26,7 +35,7 @@ class ProblemData {
   }
 
   addTestCase(test) {
-    this._tests = this._tests ?? [];
+    this._tests ??= [];
     this._tests.push(test);
   }
 };
@@ -35,6 +44,25 @@ class TestCase {
   constructor({ input, output } = {}) {
     this._input = input;
     this._output = output;
+  }
+
+  /**
+   * Push a small testcase to the complete test
+   * 
+   * @param {TestCase} test that is part of a complete test. This test param won't have output 
+   */
+  addMultiTestCase(test) {
+    this._testcases ??= [];
+    this._testcases.push(test);
+  }
+
+  /**
+   * 
+   * @param {index} index 
+   * @returns a reference to the array containing multiple extracted testcases.
+   */
+  multiTestCaseAt(index) {
+    return this._testcases[index];
   }
 
   set input(input) {

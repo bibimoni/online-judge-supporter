@@ -1,14 +1,14 @@
 const cheerio = require('cheerio');
-const { get_html_data } = require('./fetcher');
+const { getHtmlData } = require('./fetcher');
 const { ProblemData, TestCase } = require('./types');
 
 const atcoder_sample_input_regex = /^Sample Input [0-9]+$/;
 const atcoder_sample_output_regex = /^Sample Output [0-9]+$/;
-const atcoder_tl_ml_regex = /Time Limit:\s*(\d+).*\/\s*Memory Limit:\s*(\d+)/;
+const atcoder_tl_ml_regex = /\s*Time Limit:\s*([\d.]+)\s*sec\s*\/\s*Memory Limit:\s*(\d+)/;
 
 class Atcoder {
   constructor() {
-    this.name = "Atcoder";
+    this.name = "atcoder";
   }
   /** 
    * create a full url to task (https://atcoder.jp/contests/abc397/tasks/abc397_e)
@@ -16,12 +16,12 @@ class Atcoder {
    * @param {String} contest_id 
    * @param {String} task_id 
    */
-  convert_to_url(contest_id, task_id) {
+  convertToUrl(contest_id, task_id) {
     return `https://atcoder.jp/contests/${contest_id}/tasks/${task_id}`;
   }
 
-  get_problem(contest_id, task_id) {
-    return this.get_problem_from_url(this.convert_to_url(contest_id, task_id));
+  getProblem(contest_id, task_id) {
+    return this.getProblemFromUrl(this.convertToUrl(contest_id, task_id));
   }
 
   /**
@@ -30,7 +30,7 @@ class Atcoder {
   * @param {String} problem_url
   * @return {ProblemData} problem_data with testcases
   */
-  get_problem_from_url(url) {
+  getProblemFromUrl(url) {
     const call_back = (html) => {
       const $ = cheerio.load(html);
     
@@ -47,18 +47,19 @@ class Atcoder {
         }
       });
     
-      const tl_ml = $('#task-statement').prev().text();
+      const tl_ml = $('#task-statement').prev().text().replace(/[\t\n]/g, '');
+      console.log(tl_ml);
       const [, timeLimit, memoryLimit] = tl_ml.match(atcoder_tl_ml_regex);
-      test_data.timeLimit = parseInt(timeLimit);
+      test_data.timeLimit = parseFloat(timeLimit);
       test_data.memoryLimit = parseInt(memoryLimit);
     
       const name = $('#contest-nav-tabs').next().find('span').contents().first().text();
-      test_data.name = name;
+      test_data.name = name.replace(/[\t\n]/g, '');
       
       return test_data;
     };
     return new Promise((resolve, reject) => {
-      get_html_data(url)
+      getHtmlData(url)
       .then(call_back)
       .then(obj => {
           obj.url = url;
