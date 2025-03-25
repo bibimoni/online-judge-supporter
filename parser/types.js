@@ -73,4 +73,16 @@ class TestCase {
   }
 }
 
-module.exports = { TestCase, ProblemData };
+const wrapper = (responseStatus, testcase) => {
+  if (testcase == undefined) {
+    return {
+      "status": responseStatus
+    };
+  }
+  return {
+    "status": responseStatus,
+    "testcase": testcase
+  };
+};
+
+module.exports = { TestCase, ProblemData, wrapper };

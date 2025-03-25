@@ -1,6 +1,8 @@
 const axios = require('axios');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const { wrapper } = require('./types');
+const SUCCESS = 200;
 
 puppeteer.use(StealthPlugin());
 
@@ -9,7 +11,7 @@ const getHtmlData = (url) => {
   return new Promise((resolve, reject) => {
     axios.get(url)
       .then(({ data }) => resolve(data))
-      .catch(err => reject([err.response?.status, err.response?.headers]));
+      .catch(err => reject(wrapper(err.response?.status)));
   })
 };
 
@@ -20,12 +22,24 @@ const getHtmlDataBypass = async (url) => {
     try {
       const browser = await puppeteer.launch({ headless: "new" });
       const page = await browser.newPage();
-      await page.goto(url, { waitUntil: "networkidle2" });
+      const response = await page.goto(url, { waitUntil: "networkidle2" });
       const html = await page.content();
       await browser.close();
-      resolve(html);
+      let wrongRequestStatus;
+      let request_ok =  response.request().redirectChain().reduce((acc, res) => {
+        if (res.response().status() != SUCCESS) {
+          wrongRequestStatus = res.response().status();
+        }
+        return res.response().status() & acc;
+      }, true);
+
+      if (request_ok) {
+        resolve(html);
+      } else {
+        reject(wrapper(wrongRequestStatus));
+      }
     } catch (err) {
-      reject(err);
+      reject(wrapper(err.response?.status));
     }
   })
 };

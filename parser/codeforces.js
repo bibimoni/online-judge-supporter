@@ -31,7 +31,6 @@ class Codeforces {
   getProblemFromUrl(url) {
     const call_back = (html) => {
       const $ = cheerio.load(html);
-
       let test_data = new ProblemData();
 
       test_data.name = $('.title').contents().first().text();
@@ -81,10 +80,10 @@ class Codeforces {
       getHtmlDataBypass(url)
       .then(call_back)
       .then(obj => {
-          obj.url = url;
-          resolve(obj);
-        })
-        .catch(err => reject(err));
+        obj.url = url;
+        resolve(obj);
+      })
+      .catch(err => reject(err));
     });
   }
 }

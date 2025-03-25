@@ -1,6 +1,7 @@
 const { Atcoder } = require('./atcoder');
 const { Codeforces } = require('./codeforces');
-const { ProblemData } = require('./types');
+const { wrapper, ProblemData } = require('./types');
+const SUCCESS = 200;
 
 class Crawler {
   constructor() {
@@ -25,12 +26,12 @@ class Crawler {
    * @param {String} site 
    * @param {String} contest_id 
    * @param {String} problem_id 
-   * @return {ProblemData} problem data with testcases
+   * @return {Object: {"status", ProblemData}} problem data with testcases and status code
    */
   getProblem(site, contest_id, problem_id) {
     return new Promise((resolve, reject) => {
       this.map.get(site).getProblem(contest_id, problem_id)
-        .then(item => resolve(item))
+        .then(item => resolve(wrapper(SUCCESS, item)))
         .catch(err => reject(err));
     });
   }
