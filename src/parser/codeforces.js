@@ -1,6 +1,6 @@
 const cheerio = require('cheerio');
 const { getHtmlDataBypass } = require('./fetcher');
-const { ProblemData, TestCase } = require('./types');
+const { ProblemData, TestCase } = require('../types');
 
 const codeforces_tl_ml_regex = /(\d+\.\d+|\d+)/;
 

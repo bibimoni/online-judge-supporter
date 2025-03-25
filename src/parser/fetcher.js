@@ -1,7 +1,7 @@
 const axios = require('axios');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-const { wrapper } = require('./types');
+const { wrapper } = require('../types');
 const SUCCESS = 200;
 
 puppeteer.use(StealthPlugin());
