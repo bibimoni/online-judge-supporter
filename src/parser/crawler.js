@@ -13,6 +13,15 @@ class Crawler {
     this.addSite(new Atcoder());
     this.addSite(new Codeforces());
   }
+  /**
+   * return the letter indicating the order of the problem
+   * in most online judge (A, B, C, A1, D1, ZZ, EE)
+   * @param {String} problem name (D - bonfire)
+   */
+  static getProblemShortName(name) {
+    const match = name.match(/([a-zA-Z0-9])+/);
+    return match ? match[0] : "";
+  }
 
   /**
    * register crawler
@@ -26,7 +35,7 @@ class Crawler {
    * @param {String} site 
    * @param {String} contest_id 
    * @param {String} problem_id 
-   * @return {Object: {"status", ProblemData}} problem data with testcases and status code
+   * @return {Object: { "status", "testcase" }} problem data with testcases and status code
    */
   getProblem(site, contest_id, problem_id) {
     return new Promise((resolve, reject) => {
