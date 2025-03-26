@@ -1,0 +1,12 @@
+{
+  "contestFolder": "",
+  "languages": [
+    {
+      "cpp": {
+        "template": "",
+        "build": "g++ -std=c++20 -O2 -Wshadow -Wall",
+        "debug": "g++ -std=c++20 -O2 --DEBUG -Wshadow -Wall" 
+      }
+    }
+  ]
+}
