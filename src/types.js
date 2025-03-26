@@ -22,6 +22,10 @@ class ProblemData {
     this._name = name;
   }
 
+  get name() { 
+    return this._name 
+  }
+  
   set url(url) {
     this._url = url;
   }
@@ -37,6 +41,10 @@ class ProblemData {
   addTestCase(test) {
     this._tests ??= [];
     this._tests.push(test);
+  }
+
+  get testCases() {
+    return this._tests;
   }
 };
 
@@ -70,6 +78,13 @@ class TestCase {
   }
   set output(output) {
     this._output = output;
+  }
+
+  get input() {
+    return this._input;
+  }
+  get output() {
+    return this._output;
   }
 }
 
