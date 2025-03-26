@@ -16,6 +16,7 @@ class Crawler {
   /**
    * return the letter indicating the order of the problem
    * in most online judge (A, B, C, A1, D1, ZZ, EE)
+   * @param {String} problem name (D - bonfire)
    */
   static getProblemShortName(name) {
     const match = name.match(/([a-zA-Z0-9])+/);
