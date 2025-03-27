@@ -26,7 +26,7 @@ const getHtmlDataBypass = async (url) => {
       const html = await page.content();
       await browser.close();
       let wrongRequestStatus;
-      let request_ok =  response.request().redirectChain().reduce((acc, res) => {
+      let request_ok = response.request().redirectChain().reduce((acc, res) => {
         if (res.response().status() != SUCCESS) {
           wrongRequestStatus = res.response().status();
         }

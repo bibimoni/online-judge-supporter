@@ -36,6 +36,15 @@ class TestCase {
   get output() {
     return this._output;
   }
+  
+  static extractOutputToken(output) {
+    outputTokens.replaceAll("\n", " ");
+    let outputTokens = [...output.trim()];
+  }
+  
+  checker(other_testcase) {
+    
+  }
 }
 
 module.exports = { TestCase };
