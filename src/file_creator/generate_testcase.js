@@ -11,7 +11,7 @@ const generate_test_file = async (filePath, testcase) => {
     const inputPath = `${testFolderPath}/${problemShortName}.in${index}`;
     await fs.writeFile(inputPath, test.input); 
 
-    const outputPath = `${testFolderPath}/${problemShortName}.out${index}`;
+    const outputPath = `${testFolderPath}/${problemShortName}.ans${index}`;
     await fs.writeFile(outputPath, test.output); 
   });
 };

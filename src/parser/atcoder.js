@@ -1,5 +1,6 @@
 const cheerio = require('cheerio');
 const { getHtmlData } = require('./fetcher');
+const { TestCase } = require('../test/testcase');
 const { ProblemData } = require('../types');
 
 const atcoder_sample_input_regex = /^Sample Input [0-9]+$/;
@@ -48,14 +49,12 @@ class Atcoder {
       });
     
       const tl_ml = $('#task-statement').prev().text().replace(/[\t\n]/g, '');
-      console.log(tl_ml);
       const [, timeLimit, memoryLimit] = tl_ml.match(atcoder_tl_ml_regex);
       test_data.timeLimit = parseFloat(timeLimit);
       test_data.memoryLimit = parseInt(memoryLimit);
     
       const name = $('#contest-nav-tabs').next().find('span').contents().first().text();
       test_data.name = name.replace(/[\t\n]/g, '');
-      
       return test_data;
     };
     return new Promise((resolve, reject) => {
