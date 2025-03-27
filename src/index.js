@@ -17,6 +17,5 @@ const dir = "/Users/distiled/Dev/online-judge-supporter";
 //   .then(item => generate_test_file(dir, item["testcase"]))
 //   .catch(err => console.log(err));
 
-
-creator.createContest("C:\\Users\\huyhuyne\\Documents\\",2055, 2, "cpp");
+console.log(creator.createContest());
 

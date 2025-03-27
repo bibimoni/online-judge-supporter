@@ -9,10 +9,15 @@ class Creator {
   }
 	
   createContest(default_path, contest_id, number_of_problems, extension_file) {
+		if(fs.existsSync(`${default_path}/${contest_id}`)){
+			console.log("Contest already exists");
+			return;
+		}
+		fs.mkdirSync(`${default_path}/${contest_id}`);
 		for(let i = 65; i - 65 < number_of_problems; i++){
 			//console.log("Fetching problem " + String.fromCharCode(i) + " from contest " + contest_id);
-			console.log(`${default_path}\\${contest_id}\\${String.fromCharCode(i)}.${extension_file}`);
-			//fs.writeFileSync(`${default_path}\\ ${contest_id}\\ ${String.fromCharCode(i)}.${extension_file}`);
+			//console.log(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
+			fs.writeFileSync(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`, "", "utf-8");
 		}
 		console.log("Contest created successfully");
 	}
