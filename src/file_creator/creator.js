@@ -29,7 +29,7 @@ class Creator {
 			// Create a folder for each problem
 			// Check if user has existing template files path
 			if(config_languages === ""){
-				fs.writeFileSync(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`, "", "utf-8");
+				fs.writeFileSync(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
 			}else {
 				fs.copyFileSync(`${config_languages}`, `${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
 			}
@@ -45,7 +45,7 @@ class Creator {
 		let config_languages = config["languages"][0][extension_file]["template"];
 
 		if(config_languages === ""){
-			fs.writeFileSync(`${default_path}/${problem_id}.${extension_file}`, "", "utf-8");
+			fs.writeFileSync(`${default_path}/${problem_id}.${extension_file}`);
 		}else {
 			fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_id}.${extension_file}`);
 		}
