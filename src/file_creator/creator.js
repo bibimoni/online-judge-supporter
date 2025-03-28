@@ -12,7 +12,7 @@ const { load } = require('cheerio');
 const crawler = new Crawler();
 class Creator {
   constructor() {
-    this.name = "creator";
+    //this.name = "creator";
   }
 	
   createContest(default_path, contest_id, number_of_problems, extension_file) {
@@ -37,11 +37,22 @@ class Creator {
 		//notify the user that the contest has been created
 		console.log("Contest created successfully");
 	}
-	checkConfig(){
+	createProblem(default_path, problem_id, extension_file) {
+		// Check if user has existing folder path
+		if(!fs.existsSync(`${default_path}/${problem_id}`)){
+			fs.mkdirSync(`${default_path}/${problem_id}`);
+		}
 		loadConfigFile();
 		let config = getConfig();
-		let config_languages = config["languages"][0]["cpp"]["template"];
-		console.log(config_languages === null);
+		let config_languages = config["languages"][0][extension_file]["template"];
+
+		if(config_languages === ""){
+			fs.writeFileSync(`${default_path}/${problem_id}/${problem_id}.${extension_file}`, "", "utf-8");
+		}else {
+			fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_id}/${problem_id}.${extension_file}`);
+		}
+		console.log("Problem created successfully");
+
 	}
 
 	
