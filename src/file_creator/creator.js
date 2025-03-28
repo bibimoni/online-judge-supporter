@@ -39,17 +39,15 @@ class Creator {
 	}
 	createProblem(default_path, problem_id, extension_file) {
 		// Check if user has existing folder path
-		if(!fs.existsSync(`${default_path}/${problem_id}`)){
-			fs.mkdirSync(`${default_path}/${problem_id}`);
-		}
+		
 		loadConfigFile();
 		let config = getConfig();
 		let config_languages = config["languages"][0][extension_file]["template"];
 
 		if(config_languages === ""){
-			fs.writeFileSync(`${default_path}/${problem_id}/${problem_id}.${extension_file}`, "", "utf-8");
+			fs.writeFileSync(`${default_path}/${problem_id}.${extension_file}`, "", "utf-8");
 		}else {
-			fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_id}/${problem_id}.${extension_file}`);
+			fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_id}.${extension_file}`);
 		}
 		console.log("Problem created successfully");
 
