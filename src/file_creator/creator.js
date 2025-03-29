@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const { Crawler } = require('../parser/crawler');
 const { json } = require('stream/consumers');
 const { homedir } = require("os");
@@ -8,14 +8,9 @@ const defaultConfigName = "_default_config.json";
 const { dirname } = require("path");
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
 const { getConfig, loadConfigFile } = require('../config/load_config');
-const { load } = require('cheerio');
-const crawler = new Crawler();
+
 class Creator {
-  constructor() {
-    //this.name = "creator";
-  }
-	
-  createContest(default_path, contest_id, number_of_problems, extension_file) {
+  static createContest(default_path, contest_id, number_of_problems, extension_file) {
 		// Check if user has existing folder path
 		if(!fs.existsSync(`${default_path}/${contest_id}`)){
 			fs.mkdirSync(`${default_path}/${contest_id}`);
@@ -37,7 +32,7 @@ class Creator {
 		//notify the user that the contest has been created
 		console.log("Contest created successfully");
 	}
-	createProblem(default_path, problem_id, extension_file) {
+	static createProblem(default_path, problem_id, extension_file) {
 		// Check if user has existing folder path
 		
 		loadConfigFile();
@@ -53,7 +48,19 @@ class Creator {
 
 	}
 
-	
+	static async generate_test_file(filePath, testcase) {
+    let problemShortName = Crawler.getProblemShortName(testcase.name).toLowerCase();
+    await createFolder(filePath, problemShortName); 
+
+    const testFolderPath = `${filePath}/${problemShortName}/`;
+    testcase.testCases.forEach(async (test, index) => {
+      const inputPath = `${testFolderPath}/${problemShortName}.in${index}`;
+      await fs.writeFile(inputPath, test.input); 
+
+      const outputPath = `${testFolderPath}/${problemShortName}.ans${index}`;
+      await fs.writeFile(outputPath, test.output); 
+    });
+  }
 	
 }
 module.exports = { Creator };
