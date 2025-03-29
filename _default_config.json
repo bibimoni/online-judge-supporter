@@ -13,8 +13,27 @@
     {
       "cpp": {
         "template": "",
-        "build": "g++ -std=c++20 -O2 -Wshadow -Wall",
-        "debug": "g++ -std=c++20 -O2 --DEBUG -Wshadow -Wall" 
+        "build": "g++ '{relative_file}' -o {file_base} -std=c++20 -O2 -Wshadow -Wall",
+        "debug": "g++ '{relative_file}'-o {file_base} -std=c++20 -O2 --DEBUG -Wshadow -Wall",
+        "run": "./\"{file_base}\""
+      },
+      "py": {
+        "template": "",
+        "build": "",
+        "debug": null, 
+        "run": "python3 '{relative_file}'"
+      },
+      "java": {
+        "template": "",
+        "build": "javac -J-Dfile.encoding=utf8 -d \"{relative_dir}\" \"{relative_file}\"",
+        "debug": "javac -J-Dfile.encoding=utf8 -d \"{relative_dir}\" \"{relative_file}\"",
+        "run": "java -classpath \"{relative_dir}\" \"{file_base}\""
+      },
+      "rs": {
+        "template": "",
+        "build": "rustc '{relative_file}' -o",
+        "debug": "RUSTFLAGS=\"--cfg DEBUG\" rustc '{relative_file}' -o",
+        "run": "./\"{file_base}\""
       }
     }
   ]
