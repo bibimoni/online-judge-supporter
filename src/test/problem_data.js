@@ -1,4 +1,4 @@
-const { TestCase } = require('./test/testcase');
+const { TestCase } = require('./testcase');
 
 class ProblemData {
   constructor({ name, url, memoryLimit, timeLimit, tests = [] } = {}) {
@@ -39,7 +39,35 @@ class ProblemData {
   set timeLimit(timeLimit) {
     this._timeLimit = timeLimit;
   }
-
+  
+  /**
+  * remove testcase from `tests`
+  *
+  * @param {TestCase}
+  * @return {TestCase} or undefined when not found
+  */
+  removeTestCase(test) {
+    let returnTestcase = undefined;  
+    let index = this._tests.indexOf(test);
+    if (index > -1) {
+      returnTestcase = this._tests[index];
+      this._tests.splice(index, 1);
+    }
+    return returnTestcase;
+  }
+  
+  /**
+  * same with removeTestCase but you provide index (starts with 0)
+  */
+  removeTestCaseAt(index) {
+    let returnTestcase = undefined;
+    if (index < 0 || index >= this._tests.length) {
+      returnTestcase = this._tests[index];
+      this._tests.splice(index, 1);
+    }
+    return returnTestcase;
+  }
+  
   addTestCase(test) {
     this._tests ??= [];
     this._tests.push(test);
@@ -50,16 +78,4 @@ class ProblemData {
   }
 };
 
-const wrapper = (responseStatus, testcase) => {
-  if (testcase == undefined) {
-    return {
-      "status": responseStatus
-    };
-  }
-  return {
-    "status": responseStatus,
-    "testcase": testcase
-  };
-};
-
-module.exports = { ProblemData, wrapper };
+module.exports = { ProblemData };

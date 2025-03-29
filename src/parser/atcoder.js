@@ -1,7 +1,7 @@
 const cheerio = require('cheerio');
 const { getHtmlData } = require('./fetcher');
 const { TestCase } = require('../test/testcase');
-const { ProblemData } = require('../types');
+const { ProblemData } = require('../test/problem_data');
 
 const atcoder_sample_input_regex = /^Sample Input [0-9]+$/;
 const atcoder_sample_output_regex = /^Sample Output [0-9]+$/;

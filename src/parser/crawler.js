@@ -1,6 +1,6 @@
 const { Atcoder } = require('./atcoder');
 const { Codeforces } = require('./codeforces');
-const { wrapper } = require('../types');
+const { wrapper } = require('./utils.js');
 const SUCCESS = 200;
 
 class Crawler {

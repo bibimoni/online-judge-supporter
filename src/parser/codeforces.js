@@ -1,8 +1,7 @@
 const cheerio = require('cheerio');
 const { getHtmlDataBypass } = require('./fetcher');
 const { TestCase } = require('../test/testcase');
-const { ProblemData } = require('../types');
-
+const { ProblemData } = require('../test/problem_data');
 const codeforces_tl_ml_regex = /(\d+\.\d+|\d+)/;
 
 class Codeforces {
@@ -35,17 +34,17 @@ class Codeforces {
       let test_data = new ProblemData();
 
       test_data.name = $('.title').contents().first().text();
-      
-      test_data.timeLimit = parseFloat($('.time-limit').contents().filter(function () {
+
+      test_data.timeLimit = parseFloat($('.time-limit').contents().filter(function() {
         return this.type == 'text';
       })
-      .text().trim().match(codeforces_tl_ml_regex)[0]);
-      
-      test_data.memoryLimit = parseFloat($('.memory-limit').contents().filter(function () {
+        .text().trim().match(codeforces_tl_ml_regex)[0]);
+
+      test_data.memoryLimit = parseFloat($('.memory-limit').contents().filter(function() {
         return this.type == 'text';
       })
-      .text().trim().match(codeforces_tl_ml_regex)[0]);
-      
+        .text().trim().match(codeforces_tl_ml_regex)[0]);
+
       $('.sample-test').each((_, test) => {
         $(test).find('.input pre').each((_, input) => {
           let test = new TestCase();
@@ -59,7 +58,7 @@ class Codeforces {
               if (!multi_test) {
                 multi_test = true;
               } else {
-                small_unit_tests.push(new TestCase({input : $(single_test).text()}));
+                small_unit_tests.push(new TestCase({ input: $(single_test).text() }));
               }
             });
           } else {
@@ -79,12 +78,12 @@ class Codeforces {
     };
     return new Promise((resolve, reject) => {
       getHtmlDataBypass(url)
-      .then(call_back)
-      .then(obj => {
-        obj.url = url;
-        resolve(obj);
-      })
-      .catch(err => reject(err));
+        .then(call_back)
+        .then(obj => {
+          obj.url = url;
+          resolve(obj);
+        })
+        .catch(err => reject(err));
     });
   }
 }

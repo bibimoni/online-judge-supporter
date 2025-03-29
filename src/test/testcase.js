@@ -1,27 +1,11 @@
-class TokenType {
-  static #_FLOAT = 0;
-  static #_INT = 1;
-  static #_STRING = 2;
-  static #_UNKNOWN = 3;
-
-  static get FLOAT() { return this.#_FLOAT; }
-  static get INT() { return this.#_INT; }
-  static get STRING() { return this.#_STRING; }
-  static get UNKNOWN() { return this.#_UNKNOWN; }
- 
-  static validateNumber(token) {
-    return isFinite(token) && parseFloat(token).toString() === token; 
-  }
-  static isInt(token) { return this.validateNumber(token) && parseFloat(token) % 1 === 0; }
-  static isFloat(token) { return this.validateNumber(token) && parseFloat(token) % 1 !== 0; }
-  static isString(token) { return typeof token === "string"; }
-  static isUnknown(token) { return token.length === 0 || (!this.isInt(token) && !this.isFloat(token) && !this.isString(token)); }
-}
+const { Verdict } = require('./verdict');
+const { TokenType, Token } = require("./token");
+const { getConfig, loadConfigFile } = require('../config/load_config');
 
 class TestCase {
   constructor({ input, output } = {}) {
     this._input = input;
-    this._output = output;
+    this.Output = output;
   }
 
   /**
@@ -47,14 +31,14 @@ class TestCase {
     this._input = input;
   }
   set output(output) {
-    this._output = output;
+    this.Output = output;
   }
 
   get input() {
     return this._input;
   }
   get output() {
-    return this._output;
+    return this.Output;
   }
  
   /**
@@ -68,42 +52,55 @@ class TestCase {
     value.replaceAll("\n", " ");
     let outputTokens = value.split(/\s+/).filter(token => token.length > 0);
     let tokens = [];
-    outputTokens.forEach(token => {
-      if (TokenType.isUnknown(token)) {
-        return;
-      } else if (TokenType.isFloat(token)) {
-        tokens.push(new Token(parseFloat(token), TokenType.FLOAT)); 
-      } else if (TokenType.isInt(token)) {
-        tokens.push(new Token(parseInt(token), TokenType.INT)); 
-      } else if (TokenType.isString(token)) {
-        tokens.push(new Token(token, TokenType.STRING)); 
-      }
+    // load config to enable experiment mode 
+    loadConfigFile(); 
+    let config = getConfig();
+
+    outputTokens.forEach(tokenStr => {
+      let tokenType = TokenType.getTokenType(tokenStr, { 
+        experiment : config["testComparatorExperiment"] 
+      });
+      if (tokenType === TokenType.FLOAT) {
+        tokens.push(new Token(parseFloat(tokenStr), TokenType.FLOAT)); 
+      } else if (tokenType === TokenType.INT) {
+        tokens.push(new Token(parseInt(tokenStr), TokenType.INT)); 
+      } else if (tokenType === TokenType.STRING) {
+        tokens.push(new Token(tokenStr, TokenType.STRING)); 
+      } 
       // if it reaches here then wtf
     });
     
     return tokens;
   }
   
-  check(other_testcase) {
-    
+  /**
+  * compare `this` TestCase to other TestCase
+  *
+  * @param {boolean} if this is `true` consider `this.output` is the expected
+  * output and vice versa
+  * @praram {TestCase}
+  * @return {boolean} tell wether or not
+  * the testcase is correct (in compare to the expected testcase)
+  */
+  checkOutput(otherTestcase, flag = false) {
+    if (!flag) {
+      return TestCase.checkOutput(this.output, otherTestcase.output);
+    } else {
+      return TestCase.checkOutput(otherTestcase.output, this.output);
+    }
   }
-}
-
-class Token {
-  #_token = undefined;
-  #_tokenType = TokenType.UNKNOWN;
   
-  constructor(token, tokenType) {
-    this.#_token = token;
-    this.#_tokenType = tokenType;
-  }
-
-  get token() { return this.#_token; } 
-  get tokenType() { return this.#_tokenType; }
-
-  log() {
-    return `${this.token} ${this.tokenType}`;
+  static checkOutput(expectedOutput, output) { 
+    let expectedTokens = this.extractToken(expectedOutput);
+    let tokens = this.extractToken(output);
+    if (expectedTokens.length !== tokens.length) {
+      return false;
+    }
+    return expectedTokens.reduce(
+      (currentStatus, token, index) => currentStatus & token.cmp(tokens[index]),
+      true
+    );
   }
 }
 
-module.exports = { TestCase, Token };
+module.exports = { TestCase };
