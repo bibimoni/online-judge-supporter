@@ -1,7 +1,15 @@
 {
   "testComparatorExperiment": false,
   "contestFolder": "",
-  "languages": [
+
+  "__comments": [
+    "run settings",
+    "{file}: file_name with extension",
+    "{relative_file}: relative path to file",
+    "{file_base}: file name without extension or executable file (in windows)",
+    "{relative_dir}: relavetive path to directory"
+  ],
+  "extension": [
     {
       "cpp": {
         "template": "",
