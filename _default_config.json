@@ -9,7 +9,7 @@
     "{file_base}: file name without extension or executable file (in windows)",
     "{relative_dir}: relavetive path to directory"
   ],
-  "extension": [
+  "extension": {
     "c": {
       "template": "",
       "build": "gcc '{relative_file}' -o {file_base}",
@@ -40,5 +40,5 @@
       "debug": "RUSTFLAGS=\"--cfg DEBUG\" rustc '{relative_file}' -o",
       "run": "./\"{file_base}\""
     }
-  ]
+  }  
 }
