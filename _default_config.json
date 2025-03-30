@@ -11,6 +11,12 @@
   ],
   "extension": [
     {
+      "c": {
+        "template": "",
+        "build": "gcc '{relative_file}' -o {file_base}",
+        "debug": "gcc '{relative_file}' -o {file_base}",
+        "run": "./\"{file_base}\"" 
+      },
       "cpp": {
         "template": "",
         "build": "g++ '{relative_file}' -o {file_base} -std=c++20 -O2 -Wshadow -Wall",
