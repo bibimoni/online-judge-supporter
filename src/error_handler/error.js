@@ -28,7 +28,7 @@ class Exception {
   }
 
   static unsupportedFileExtension(extension) {
-    return new Error(`The .${extension} is not supported`);
+    return new Error(`The .${extension} extension is not supported`);
   }
 }
 

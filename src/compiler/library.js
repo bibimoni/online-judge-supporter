@@ -8,3 +8,5 @@ const supportedLanguages = [
   "java",
   "rs"
 ];
+
+module.exports = { supportedLanguages };

@@ -17,7 +17,7 @@ const test1 = (site, contest_id, problem_id) => {
 
 const test2 = () => {
   // 3.0000 vs 3.0001 ? => wrong
-  let output1 = "5 6 11 abc 3.00000000000001"; 
+  let output1 = "5\n6 11 abc 3.00000000000001"; 
   let output2 = "5 6 11 abc 3.00000000000000"; 
   
   return TestCase.checkOutput(output1, output2);

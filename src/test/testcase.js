@@ -49,7 +49,6 @@ class TestCase {
    * @return {[...Token]} an array of Token-s
    */
   static extractToken(value) {
-    value.replaceAll("\n", " ");
     let outputTokens = value.split(/\s+/).filter(token => token.length > 0);
     let tokens = [];
     // load config to enable experiment mode 
