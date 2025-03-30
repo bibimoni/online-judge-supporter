@@ -1,26 +1,34 @@
 class Exception {
-  static CanNotCreateFile() {
+  static canNotCreateFile() {
     return new Error("Can't not create file");
   }
 
-  static NoSourceFile(fileName) {
-    return new Error(`No source file with name: ${fileName}`);
+  static noSourceFile(fileDirectory) {
+    return new Error(`No source file with name: ${fileDirectory}`);
   }
 
-  static NoTestFileAvailable(fileName) {
+  static noTestFileAvailable(fileName) {
     return new Error(`No test file for source file: ${fileName}`);
   }
 
-  static FileNotFound(fileName) {
-    return new Error(`File Not Found ${fileName}`)
+  static fileNotFound(fileName) {
+    return new Error(`File: ${fileName} Not Found`)
   }
   
-  static TestFileNotFound(fileName, fileIndex) {
+  static testFileNotFound(fileName, fileIndex) {
     return new Error(`Test number ${fileIndex} is not available for source file: ${fileName}`)
   }
 
-  static NoBinaryFile(fileName) {
+  static noBinaryFile(fileName) {
     return new Error(`No binary file found for source file: ${fileName}`);
+  }
+
+  static invalidFileFormat(fileName) {
+    return new Error(`Can't not get file extension from: ${fileName}`)
+  }
+
+  static unsupportedFileExtension(extension) {
+    return new Error(`The .${extension} is not supported`);
   }
 }
 
