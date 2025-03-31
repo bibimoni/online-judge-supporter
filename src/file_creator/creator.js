@@ -1,12 +1,5 @@
 const fs = require('fs-extra');
 const { Crawler } = require('../parser/crawler');
-const { json } = require('stream/consumers');
-const { homedir } = require("os");
-let configName = "online-judge-supporter_config.json";
-let configDir = `${homedir()}/${configName}`;
-const defaultConfigName = "_default_config.json";
-const { dirname } = require("path");
-const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
 const { getConfig, loadConfigFile } = require('../config/load_config');
 
 class Creator {
@@ -48,7 +41,7 @@ class Creator {
 
   }
 
-  static async generate_test_file(filePath, testcase) {
+  static async generateTestFile(filePath, testcase) {
     let problemShortName = Crawler.getProblemShortName(testcase.name).toLowerCase();
     await createFolder(filePath, problemShortName);
 
@@ -61,6 +54,6 @@ class Creator {
       await fs.writeFile(outputPath, test.output);
     });
   }
-
 }
+
 module.exports = { Creator };
