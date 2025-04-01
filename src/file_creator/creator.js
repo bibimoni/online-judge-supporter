@@ -2,16 +2,32 @@ const fs = require('fs-extra');
 const { Crawler } = require('../parser/crawler');
 const { json } = require('stream/consumers');
 const { homedir } = require("os");
+const { dirname } = require("path");
+const {Exception} = require("../exception/exception");
+
 let configName = "online-judge-supporter_config.json";
 let configDir = `${homedir()}/${configName}`;
 const defaultConfigName = "_default_config.json";
-const { dirname } = require("path");
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
 const { getConfig, loadConfigFile } = require('../config/load_config');
+const problem_regex = /((^{[a-z]+-[a-z]+})|(^{[A-Z]+-[A-Z]+})|(^[\w-]+)).([a-z]+)$/;
 
 class Creator {
-  static createContest(default_path, contest_id, number_of_problems, extension_file) {
-		// Check if user has existing folder path
+	
+	/**
+	 * 
+	 * @param {*} default_path 
+	 * @param {*} contest_id 
+	 * @param {*} param
+	 */
+  	static createContest(default_path, contest_id, param) {
+		if(!problem_regex.test(param)){
+			throw new Error("Invalid format for contest creation. Please use correct format");
+		}
+		
+		let number_of_problems =  - param.split("-")[0].charCodeAt(1) + 1;
+		let extension_file = param.split(".")[1];
+		
 		if(!fs.existsSync(`${default_path}/${contest_id}`)){
 			fs.mkdirSync(`${default_path}/${contest_id}`);
 		}
@@ -19,30 +35,33 @@ class Creator {
 		let config = getConfig();
 		let config_languages = config["languages"][0][extension_file]["template"];
 		
-		// Create the problems with number of problems
 		for(let i = 65; i - 65 < number_of_problems; i++){
-			// Create a folder for each problem
-			// Check if user has existing template files path
 			if(config_languages === ""){
 				fs.writeFileSync(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
 			}else {
 				fs.copyFileSync(`${config_languages}`, `${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
 			}
 		}
-		//notify the user that the contest has been created
 		console.log("Contest created successfully");
 	}
-	static createProblem(default_path, problem_id, extension_file) {
-		// Check if user has existing folder path
-		
+	static createProblem(default_path, param) {
+		if(!problem_regex.test(param)){
+			throw new Error("Invalid format for problem creation. Please use correct format");
+		}
+		let problem_name = param.split(".")[0];
+		let extension_file = param.split(".")[1];
 		loadConfigFile();
 		let config = getConfig();
 		let config_languages = config["languages"][0][extension_file]["template"];
 
-		if(config_languages === ""){
-			fs.writeFileSync(`${default_path}/${problem_id}.${extension_file}`);
-		}else {
-			fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_id}.${extension_file}`);
+		try{
+			if(config_languages === ""){
+				fs.writeFileSync(`${default_path}/${problem_name}.${extension_file}`);
+			}else {
+				fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_name}.${extension_file}`);
+			}
+		}catch (error){
+			throw new Error(error);
 		}
 		console.log("Problem created successfully");
 
