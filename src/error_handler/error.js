@@ -1,5 +1,6 @@
 class Exception {
-  static canNotCreateFile() { return new Error("Can't not create file");
+  static canNotCreateFile() { 
+    return new Error("Can't not create file");
   }
 
   static noSourceFile(fileDirectory) {
