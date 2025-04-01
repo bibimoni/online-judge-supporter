@@ -15,6 +15,7 @@ class Compiler {
     this.run = expandArgumentWithPath(this.settings["run"], filePath);
     this.build = expandArgumentWithPath(this.settings["build"], filePath);
     this.debug = expandArgumentWithPath(this.settings["debug"], filePath);
+    this.filePath = filePath;
   }
 
   getLanguageSettings(filePath) { 
