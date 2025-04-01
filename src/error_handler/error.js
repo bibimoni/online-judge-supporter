@@ -1,6 +1,5 @@
 class Exception {
-  static CanNotCreateFile() {
-    return new Error("Can't not create file");
+  static canNotCreateFile() { return new Error("Can't not create file");
   }
 
   static NoSourceFile(fileName) {
@@ -23,5 +22,6 @@ class Exception {
     return new Error(`No binary file found for source file: ${fileName}`);
   }
 }
+
 
 module.exports = { Exception };
