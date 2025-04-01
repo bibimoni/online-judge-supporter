@@ -10,12 +10,16 @@ const { Exception } = require('../error_handler/error')
 const { supportedLanguages } = require('./library');
 
 class Compiler {
-  constructor({ filePath } = {}) {
+  constructor({ filePath }) {
     this.settings = this.getLanguageSettings(filePath);
     this.run = expandArgumentWithPath(this.settings["run"], filePath);
     this.build = expandArgumentWithPath(this.settings["build"], filePath);
     this.debug = expandArgumentWithPath(this.settings["debug"], filePath);
     this.filePath = filePath;
+  }
+  
+  executeTest() {
+    
   }
 
   getLanguageSettings(filePath) { 

@@ -46,10 +46,11 @@ const getBaseFileName = (fileName) => {
   return fileName.slice(0, -getFileExtension(fileName).length - 1);
 };
 
-
 module.exports = { 
   validateFilePath,
   getFileNameFromPath,
   getFileExtension,
   expandArgumentWithPath,
+  getDirectoryFromPath,
+  getBaseFileName,
 };

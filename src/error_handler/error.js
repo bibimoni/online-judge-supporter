@@ -7,7 +7,7 @@ class Exception {
     return new Error(`No source file with name: ${fileDirectory}`);
   }
 
-  static noTestFileAvailable(fileName) {
+  static noTestAvailable(fileName) {
     return new Error(`No test file for source file: ${fileName}`);
   }
 
@@ -29,6 +29,10 @@ class Exception {
 
   static unsupportedFileExtension(extension) {
     return new Error(`The .${extension} extension is not supported`);
+  }
+
+  static canNotReadTestFile(fileName) {
+    return new Error(`Can't read test file with name ${fileName}`);
   }
 }
 

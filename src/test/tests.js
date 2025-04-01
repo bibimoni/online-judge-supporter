@@ -1,5 +1,6 @@
 const { TestCase } = require('./testcase');
 const { Crawler } = require('../parser/crawler');
+const { Creator } = require('../file_creator/creator');
 
 const test1 = (site, contest_id, problem_id) => {
   const crawler = new Crawler();
@@ -24,4 +25,20 @@ const test2 = () => {
 };
 
 // test1('atcoder', 'arc195', 'arc195_c');
-console.log(test2());
+// console.log(test2());
+const test3 = () => {
+  const dir = `${__dirname}/../../src`;
+  console.log(dir);
+  console.log(TestCase.getTestCasesFromDirectory(dir));
+};
+
+// test3()
+const test4 = async () => {
+  const crawler = new Crawler();
+  const problemData = await crawler.getProblem('atcoder', 'arc195', 'arc195_c');
+  const dir = `${__dirname}/../../testdir/`;
+  await Creator.generateTestFile(dir, problemData["testcase"]);
+  console.log(TestCase.getTestCasesFromDirectory(`${dir}/c.cpp`));
+};
+
+test4();

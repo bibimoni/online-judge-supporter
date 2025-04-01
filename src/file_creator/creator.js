@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const { Crawler } = require('../parser/crawler');
 const { getConfig, loadConfigFile } = require('../config/load_config');
+const { createFolder } = require('./utils');
 
 class Creator {
   static createContest(default_path, contest_id, number_of_problems, extension_file) {
@@ -27,7 +28,6 @@ class Creator {
   }
   static createProblem(default_path, problem_id, extension_file) {
     // Check if user has existing folder path
-
     loadConfigFile();
     let config = getConfig();
     let config_languages = config["languages"][0][extension_file]["template"];
@@ -45,12 +45,12 @@ class Creator {
     let problemShortName = Crawler.getProblemShortName(testcase.name).toLowerCase();
     await createFolder(filePath, problemShortName);
 
-    const testFolderPath = `${filePath}/${problemShortName}/`;
+    const testFolderPath = `${filePath}${problemShortName}`;
     testcase.testCases.forEach(async (test, index) => {
-      const inputPath = `${testFolderPath}/${problemShortName}.in${index}`;
+      const inputPath = `${testFolderPath}in${index}`;
       await fs.writeFile(inputPath, test.input);
 
-      const outputPath = `${testFolderPath}/${problemShortName}.ans${index}`;
+      const outputPath = `${testFolderPath}/ans${index}`;
       await fs.writeFile(outputPath, test.output);
     });
   }
