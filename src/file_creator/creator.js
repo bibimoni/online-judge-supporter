@@ -87,9 +87,6 @@ class Creator {
 		console.log("Problem created successfully");
 
 	}
-  static createTest(problem_name, filePath) {
-    
-  }
 
   /**
   * generate a folder containing tests from given problemData
