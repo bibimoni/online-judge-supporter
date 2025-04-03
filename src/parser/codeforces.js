@@ -53,14 +53,26 @@ class Codeforces {
 
           if ($(input).children().length) {
             let multi_test = false;
+            let previousLineState = "test-example-line-odd" // the first subtest class is odd
+            let currentMultiInput = "";
             $(input).children().each((_, single_test) => {
               current_input += $(single_test).text() + '\n';
               if (!multi_test) {
                 multi_test = true;
               } else {
-                small_unit_tests.push(new TestCase({ input: $(single_test).text() }));
+                const currentLineState = $(single_test).attr('class').split(' ')[1];
+                if (currentLineState != previousLineState) {
+                  small_unit_tests.push(new TestCase({ input: currentMultiInput }));
+                  previousLineState = currentLineState;
+                  currentMultiInput = $(single_test).text() + '\n';
+                } else {
+                  currentMultiInput += $(single_test).text() + '\n';
+                }
               }
             });
+            if (currentMultiInput.length > 0) {
+              small_unit_tests.push(new TestCase({ input: currentMultiInput }));
+            }
           } else {
             current_input = $(input).text();
           }

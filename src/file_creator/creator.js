@@ -1,5 +1,18 @@
 const fs = require('fs-extra');
 const { Crawler } = require('../parser/crawler');
+const { ProblemData } = require('../test/problem_data')
+const { getConfig, loadConfigFile, mode } = require('../config/load_config');
+const { createFolder } = require('./utils');
+const {
+  multiTestFolderName,
+  inputPrefixTestName,
+  ansPrefixTestName,
+} = require('../config/load_config');
+const {
+  getFileNameFromPath,
+  getBaseFileName,
+  getDirectoryFromPath
+} = require('../compiler/utils');
 const { json } = require('stream/consumers');
 const { homedir } = require("os");
 const { dirname } = require("path");
@@ -78,19 +91,57 @@ class Creator {
     
   }
 
-	static async generate_test_file(filePath, testcase) {
-    let problemShortName = Crawler.getProblemShortName(testcase.name).toLowerCase();
-    await createFolder(filePath, problemShortName); 
+  /**
+  * generate a folder containing tests from given problemData
+  * the folder have the problem name containing with inputs, outputs 
+  * and theirs index, also generate a multitest folder if supported
+  *
+  * @param {String} testFolder directory that will contain the test file
+  * @param {ProblemData} problemData crawlered data
+  * @param {String} fileName, if provided use this as the test folder name
+  * otherwise use the problemData' short name
+  */
+  static async generateTestFile(testDir, problemData, { fileName = "" } = {}) {
+    let problemShortName;
+    if (!fileName || fileName.length === 0) {
+      problemShortName = Crawler.getProblemShortName(problemData.name).toLowerCase();
+    }
+    else {
+      problemShortName = fileName;
+    }
+    await createFolder(testDir, problemShortName);
+    const testFolderPath = `${testDir}${problemShortName}`;
+    problemData.testCases.forEach(async (test, index) => {
+      const inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
+      await fs.writeFile(inputPath, test.input);
 
-    const testFolderPath = `${filePath}/${problemShortName}/`;
-    testcase.testCases.forEach(async (test, index) => {
-      const inputPath = `${testFolderPath}/${problemShortName}.in${index}`;
-      await fs.writeFile(inputPath, test.input); 
-
-      const outputPath = `${testFolderPath}/${problemShortName}.ans${index}`;
-      await fs.writeFile(outputPath, test.output); 
+      const outputPath = `${testFolderPath}/${ansPrefixTestName}${index}`;
+      await fs.writeFile(outputPath, test.output);
+      if (test.isMultiTest) {
+        const multiInputPath = `${testFolderPath}/${multiTestFolderName}_${index}/`;
+        fs.ensureDir(multiInputPath, mode);
+        test.multiTestCase.forEach(async (mutliTest, multiTestIndex) => {
+          const multiTestPath = `${multiInputPath}${inputPrefixTestName}${multiTestIndex}`;
+          await fs.writeFile(multiTestPath, mutliTest.input);
+        })
+      }
     });
   }
-	
+
+  /**
+  * generate a folder containing tests from given problemData
+  * the folder have the problem name containing with inputs, outputs 
+  * and theirs index, also generate a multitest folder if supported
+  *
+  * @param {String} filePath file path to the source file 
+  * @param {ProblemData} problemData crawlered data
+  */
+  static async generateTestFileWithFilePath(filePath, problemData) {
+    console.log(getFileNameFromPath(filePath), "filename");
+    return await Creator.generateTestFile(getDirectoryFromPath(filePath), problemData, {
+      fileName: getBaseFileName(getFileNameFromPath(filePath))
+    });
+  }
 }
+
 module.exports = { Creator };

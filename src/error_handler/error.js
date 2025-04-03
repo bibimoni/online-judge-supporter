@@ -1,36 +1,40 @@
 class Exception {
-  static CanNotCreateFile() {
+  static canNotCreateFile() { 
     return new Error("Can't not create file");
   }
-  static CanNotCreateFolder(dirname) {
-    return new Error(`Can't not create folder, no such directory: ${dirname}`);
+
+  static noSourceFile(fileDirectory) {
+    return new Error(`No source file with name: ${fileDirectory}`);
   }
-  static InvalidFileName(fileName) {
-    return new Error(`Invalid file name: ${fileName}`);
-  }
-  static NoSourceFile(fileName) {
-    return new Error(`No source file with name: ${fileName}`);
-  }
-  static LanguageNotFound(language) {
-    return new Error(`Language not found: ${language}`);
-  }
-  static NoTestFileAvailable(fileName) {
+
+  static noTestAvailable(fileName) {
     return new Error(`No test file for source file: ${fileName}`);
   }
-  static InvalidContestFormat() {
-    return new Error("Invalid contest format. Please use correct format");
-  }
-  static FileNotFound(fileName) {
-    return new Error(`File Not Found ${fileName}`)
+
+  static fileNotFound(fileName) {
+    return new Error(`File: ${fileName} Not Found`)
   }
   
-  static TestFileNotFound(fileName, fileIndex) {
+  static testFileNotFound(fileName, fileIndex) {
     return new Error(`Test number ${fileIndex} is not available for source file: ${fileName}`)
   }
 
-  static NoBinaryFile(fileName) {
+  static noBinaryFile(fileName) {
     return new Error(`No binary file found for source file: ${fileName}`);
   }
+
+  static invalidFileFormat(fileName) {
+    return new Error(`Can't not get file extension from: ${fileName}`)
+  }
+
+  static unsupportedFileExtension(extension) {
+    return new Error(`The .${extension} extension is not supported`);
+  }
+
+  static canNotReadTestFile(fileName) {
+    return new Error(`Can't read test file with name ${fileName}`);
+  }
 }
+
 
 module.exports = { Exception };
