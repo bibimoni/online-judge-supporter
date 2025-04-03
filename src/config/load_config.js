@@ -22,10 +22,11 @@ const loadConfigFile = () => {
   if (!fs.existsSync(configDir)) {
     fs.copySync(defaultConfigDir, configDir);
   }
-
+  const content = fs.readFileSync(configDir, 'utf-8')
+  const jsonPlain = content.slice(content.indexOf('{') + 1, content.lastIndexOf('}'));
   // only apply config with the config is a valid string
   try {
-    let o = JSON.parse(fs.readFileSync(configDir, 'utf8'));
+    let o = JSON.parse(jsonPlain);
     if (o && typeof o == 'object') {
       config = o;
     }
