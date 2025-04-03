@@ -3,7 +3,7 @@ const { Crawler } = require('../parser/crawler');
 const { json } = require('stream/consumers');
 const { homedir } = require("os");
 const { dirname } = require("path");
-const {Exception} = require("../exception/exception");
+const { Exception } = require("../exception/exception");
 
 let configName = "online-judge-supporter_config.json";
 let configDir = `${homedir()}/${configName}`;
