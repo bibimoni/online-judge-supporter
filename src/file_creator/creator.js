@@ -66,19 +66,17 @@ class Creator {
       throw Exception.LanguageNotFound(extension_file);
     }
 		let config_languages = config["languages"][0][extension_file]["template"];
-
-		try{
-			if(config_languages === ""){
-				fs.writeFileSync(`${default_path}/${problem_name}.${extension_file}`);
-			}else {
-				fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_name}.${extension_file}`);
-			}
-		}catch (error){
-			throw new Error(error);
-		}
+		if(config_languages === ""){
+      fs.writeFileSync(`${default_path}/${problem_name}.${extension_file}`);
+    }else {
+      fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_name}.${extension_file}`);
+    }
 		console.log("Problem created successfully");
 
 	}
+  static createTest(problem_name, filePath) {
+    
+  }
 
 	static async generate_test_file(filePath, testcase) {
     let problemShortName = Crawler.getProblemShortName(testcase.name).toLowerCase();
