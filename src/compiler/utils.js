@@ -43,7 +43,8 @@ const getFileExtension = (fileName) => {
 };
 
 const getBaseFileName = (fileName) => {
-  return fileName.slice(0, -getFileExtension(fileName).length - 1);
+  return fileName.slice(0, -getFileExtension(fileName).length 
+    - (fileName.includes(".") ? 1 : 0));
 };
 
 module.exports = { 

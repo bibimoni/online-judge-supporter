@@ -4,7 +4,11 @@ const { getConfig, loadConfigFile } = require('../config/load_config');
 const { Exception } = require('../error_handler/error');
 const fs = require('fs-extra');
 const path = require('path');
-const { mode } = require('../config/load_config');
+const { 
+  mode,
+  ansPrefixTestName,
+  inputPrefixTestName
+} = require('../config/load_config');
 const {
   validateFilePath,
   getFileNameFromPath,
@@ -16,7 +20,8 @@ const { getTestIndexFromTestName } = require('./utils');
 class TestCase {
   constructor({ input, output } = {}) {
     this._input = input;
-    this.Output = output;
+    this._output = output;
+    this._isMultiTest = false;
   }
 
   /**
@@ -25,6 +30,7 @@ class TestCase {
    * @param {TestCase} test that is part of a complete test. This test param won't have output 
    */
   addMultiTestCase(test) {
+    this._isMultiTest = true;
     this._testcases ??= [];
     this._testcases.push(test);
   }
@@ -42,16 +48,21 @@ class TestCase {
     this._input = input;
   }
   set output(output) {
-    this.Output = output;
+    this._output = output;
   }
 
   get input() {
     return this._input;
   }
   get output() {
-    return this.Output;
+    return this._output;
   }
-
+  get multiTestCase() {
+    return this._testcases;
+  } 
+  get isMultiTest() {
+    return this._isMultiTest;
+  }
   /**
    * extarct value to an array of tokens, each will have a type 
    * please don't change the order of these if statements cause it may break
@@ -62,7 +73,7 @@ class TestCase {
   static extractToken(value) {
     let outputTokens = value.split(/\s+/).filter(token => token.length > 0);
     let tokens = [];
-    // load config to enable experiment mode 
+    // Load config to enable experiment mode 
     loadConfigFile();
     let config = getConfig();
 
@@ -77,7 +88,7 @@ class TestCase {
       } else if (tokenType === TokenType.STRING) {
         tokens.push(new Token(tokenStr, TokenType.STRING));
       }
-      // if it reaches here then wtf
+      // if it reaches here, then wtf
     });
 
     return tokens;
@@ -123,8 +134,8 @@ class TestCase {
 
     const testCaseFolder = `${getDirectoryFromPath(filePath)}${getBaseFileName(fileName)}/`;
     let testcases = {};
-    const inputRegex = /^in([0-9]+)$/;
-    const ansRegex = /^ans([0-9]+)$/;
+    const inputRegex = new RegExp(`^${inputPrefixTestName}([0-9]+)$`);
+    const ansRegex = new RegExp(`^${ansPrefixTestName}([0-9]+)$`);
     const indexPosition = 1;
     fs.ensureDirSync(testCaseFolder, mode);
     fs.readdirSync(testCaseFolder, { withFileTypes: true }).forEach(file => {
@@ -135,7 +146,7 @@ class TestCase {
         }
         testcases[index] ??= new TestCase();
         testcases[index].input = TestCase.#readTestContent(file, inputRegex) ?? testcases[index].input;
-        testcases[index].output = TestCase.#readTestContent(file, ansRegex) ?? testcases[index].input;
+        testcases[index].output = TestCase.#readTestContent(file, ansRegex) ?? testcases[index].output;
       }
     });
     return testcases;
@@ -143,7 +154,7 @@ class TestCase {
   
   static #readTestContent(file, regex) {
     if (regex.test(file.name)) {
-      const filePath = `${file.path}${file.name}`;
+      const filePath = `${path.normalize(file.path)}${file.name}`;
       try {
         return fs.readFileSync(filePath, { encoding: 'utf8' });
       } catch {
