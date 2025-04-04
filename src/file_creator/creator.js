@@ -22,7 +22,6 @@ let configName = "online-judge-supporter_config.json";
 let configDir = `${homedir()}/${configName}`;
 const defaultConfigName = "_default_config.json";
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
-const { getConfig, loadConfigFile } = require('../config/load_config');
 const problem_regex = /((^{[a-z]+-[a-z]+})|(^{[A-Z]+-[A-Z]+})|(^[\w-]+)).([a-z]+)$/;
 
 class Creator {
@@ -42,7 +41,7 @@ class Creator {
 		let number_of_problems =  - param.split("-")[0].charCodeAt(1) + 1;
 		let extension_file = param.split(".")[1];
 		
-		if(!fs.existsSync(`${default_path}/${contest_id}`)){
+		if(!fs.existsSync(`${default_path}/${contest_id}`) && false){
 			try {
         fs.mkdirSync(`${default_path}/${contest_id}`);
       }catch { 
@@ -51,12 +50,13 @@ class Creator {
 		}
 		loadConfigFile();
 		let config = getConfig();
+    console.log(config["extension"]);
+    return ;
     if(config["extension"][0][extension_file] === undefined){
       throw Exception.LanguageNotFound(extension_file);
     }
     let config_languages = config["extension"][0][extension_file]["template"];
     
-		//let config_languages = config["languages"][0][extension_file]["template"];
 		
 		for(let i = 65; i - 65 < number_of_problems; i++){
 			if(config_languages === ""){
@@ -67,6 +67,11 @@ class Creator {
 		}
 		console.log("Contest created successfully");
 	}
+  /**
+   * 
+   * @param {*} default_path 
+   * @param {*} param 
+   */
 	static createProblem(default_path, param) {
 		if(!problem_regex.test(param)){
 			throw Exception.InvalidFileName(param);

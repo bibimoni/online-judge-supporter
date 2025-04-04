@@ -8,7 +8,7 @@ const test1 = () => {
 };
 
 const test2 = () => {
-  const fileDir = "/Users/distiled/codeStuff/cp/cf/2074/e.cpp";
+  const fileDir = "/home/huyhuy/Documents/Code-1/tempCodeRunnerFile.cpp";
   const compiler = new Compiler({
     filePath: fileDir
   });
