@@ -50,12 +50,10 @@ class Creator {
 		}
 		loadConfigFile();
 		let config = getConfig();
-    console.log(config["extension"]);
-    return ;
-    if(config["extension"][0][extension_file] === undefined){
+    if(config["extension"][extension_file] === undefined){
       throw Exception.LanguageNotFound(extension_file);
     }
-    let config_languages = config["extension"][0][extension_file]["template"];
+    let config_languages = config["extension"][extension_file]["template"];
     
 		
 		for(let i = 65; i - 65 < number_of_problems; i++){
@@ -68,9 +66,9 @@ class Creator {
 		console.log("Contest created successfully");
 	}
   /**
-   * 
-   * @param {*} default_path 
-   * @param {*} param 
+   * Creates a file for a specific problem based on the provided parameters.
+   * @param {String} default_path - The default path where the problem file will be created.
+   * @param {String} param - A string containing the problem name and file extension in the format "problemName.extension".
    */
 	static createProblem(default_path, param) {
 		if(!problem_regex.test(param)){
@@ -83,7 +81,7 @@ class Creator {
     if(config["extension"][0][extension_file] === undefined){
       throw Exception.LanguageNotFound(extension_file);
     }
-		let config_languages = config["languages"][0][extension_file]["template"];
+		let config_languages = config["languages"][extension_file]["template"];
 		if(config_languages === ""){
       fs.writeFileSync(`${default_path}/${problem_name}.${extension_file}`);
     }else {
