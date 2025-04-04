@@ -7,7 +7,8 @@ const path = require('path');
 const { 
   mode,
   ansPrefixTestName,
-  inputPrefixTestName
+  inputPrefixTestName,
+  multiTestFolderName
 } = require('../config/load_config');
 const {
   validateFilePath,
@@ -136,6 +137,7 @@ class TestCase {
     let testcases = {};
     const inputRegex = new RegExp(`^${inputPrefixTestName}([0-9]+)$`);
     const ansRegex = new RegExp(`^${ansPrefixTestName}([0-9]+)$`);
+    const multiRegex = new RegExp(`^${multiTestFolderName}_([0-9]+)$`)
     const indexPosition = 1;
     fs.ensureDirSync(testCaseFolder, mode);
     fs.readdirSync(testCaseFolder, { withFileTypes: true }).forEach(file => {
@@ -147,11 +149,17 @@ class TestCase {
         testcases[index] ??= new TestCase();
         testcases[index].input = TestCase.#readTestContent(file, inputRegex) ?? testcases[index].input;
         testcases[index].output = TestCase.#readTestContent(file, ansRegex) ?? testcases[index].output;
+      } else {
+        console.log(file);
       }
     });
     return testcases;
   }
   
+  static #readMultiTest() {
+
+  }
+
   static #readTestContent(file, regex) {
     if (regex.test(file.name)) {
       const filePath = `${path.normalize(file.path)}${file.name}`;
