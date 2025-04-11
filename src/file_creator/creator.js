@@ -136,10 +136,10 @@ class Creator {
   * @param {String} filePath file path to the source file 
   * @param {ProblemData} problemData crawlered data
   */
-  static async generateTestFileWithFilePath(filePath, problemData) {
-    console.log(getFileNameFromPath(filePath), "filename");
-    return await Creator.generateTestFile(getDirectoryFromPath(filePath), problemData, {
-      fileName: getBaseFileName(getFileNameFromPath(filePath))
+ static async generateTestFileWithFilePath(filePath, problemData) {
+   console.log(getFileNameFromPath(filePath), "filename");
+   return await Creator.generateTestFile(getDirectoryFromPath(filePath), problemData, {
+     fileName: getBaseFileName(getFileNameFromPath(filePath))
     });
   }
 }
