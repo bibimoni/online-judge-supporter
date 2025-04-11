@@ -149,15 +149,32 @@ class TestCase {
         testcases[index] ??= new TestCase();
         testcases[index].input = TestCase.#readTestContent(file, inputRegex) ?? testcases[index].input;
         testcases[index].output = TestCase.#readTestContent(file, ansRegex) ?? testcases[index].output;
-      } else {
-        console.log(file);
+
       }
     });
+    fs.readdirSync(testCaseFolder, { withFileTypes: true }).forEach(file => {
+      if (!file.isFile()){
+        const indexFile = getTestIndexFromTestName(file.name, [multiRegex], indexPosition);
+        console.log(getTestIndexFromTestName(file.name, [multiRegex], indexPosition));
+        if (indexFile === undefined) {
+          return;
+        }
+        const multiTestFolder = `${testCaseFolder}${file.name}/`;
+        console.log(multiTestFolder);
+        fs.readdirSync(multiTestFolder, { withFileTypes: true }).forEach(file => {
+          if (file.isFile()) {
+            const input = TestCase.#readTestContent(file, inputRegex);
+            if (input === undefined) {
+              return;
+            }
+            testcases[indexFile].addMultiTestCase(new TestCase({input: input}));
+          }
+        
+        })
+        
+      }
+    })
     return testcases;
-  }
-  
-  static #readMultiTest() {
-    
   }
 
   static #readTestContent(file, regex) {
