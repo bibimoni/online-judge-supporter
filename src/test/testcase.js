@@ -4,7 +4,7 @@ const { getConfig, loadConfigFile } = require('../config/load_config');
 const { Exception } = require('../error_handler/error');
 const fs = require('fs-extra');
 const path = require('path');
-const { 
+const {
   mode,
   ansPrefixTestName,
   inputPrefixTestName,
@@ -60,7 +60,7 @@ class TestCase {
   }
   get multiTestCase() {
     return this._testcases;
-  } 
+  }
   get isMultiTest() {
     return this._isMultiTest;
   }
@@ -153,7 +153,7 @@ class TestCase {
       }
     });
     fs.readdirSync(testCaseFolder, { withFileTypes: true }).forEach(file => {
-      if (!file.isFile()){
+      if (!file.isFile()) {
         const indexFile = getTestIndexFromTestName(file.name, [multiRegex], indexPosition);
         console.log(getTestIndexFromTestName(file.name, [multiRegex], indexPosition));
         if (indexFile === undefined) {
@@ -167,11 +167,9 @@ class TestCase {
             if (input === undefined) {
               return;
             }
-            testcases[indexFile].addMultiTestCase(new TestCase({input: input}));
+            testcases[indexFile].addMultiTestCase(new TestCase({ input: input }));
           }
-        
         })
-        
       }
     })
     return testcases;
