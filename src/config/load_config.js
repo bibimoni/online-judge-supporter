@@ -7,6 +7,11 @@ const { dirname } = require("path");
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
 
 let config = JSON.parse(fs.readFileSync(defaultConfigDir, 'utf8')); // init as default
+let mode = 0o2775;
+let multiTestFolderName = "__multi";
+let ansPrefixTestName = "ans";
+let inputPrefixTestName = "in";
+let outputPrefixTestName = "out";
 
 /**
  *  the user may be able to change the config without exiting the program
@@ -17,14 +22,15 @@ const loadConfigFile = () => {
   if (!fs.existsSync(configDir)) {
     fs.copySync(defaultConfigDir, configDir);
   }
-
+  const content = fs.readFileSync(configDir, 'utf-8')
+  const jsonPlain = content.slice(content.indexOf('{') + 1, content.lastIndexOf('}'));
   // only apply config with the config is a valid string
   try {
-    let o = JSON.parse(fs.readFileSync(configDir, 'utf8'));
+    let o = JSON.parse(jsonPlain);
     if (o && typeof o == 'object') {
       config = o;
     }
-  } catch {}
+  } catch { }
 }
 
 /**
@@ -34,4 +40,12 @@ const getConfig = () => {
   return config;
 }
 
-module.exports = { getConfig, loadConfigFile };
+module.exports = {
+  mode,
+  multiTestFolderName,
+  ansPrefixTestName,
+  outputPrefixTestName,
+  inputPrefixTestName,
+  getConfig,
+  loadConfigFile
+};
