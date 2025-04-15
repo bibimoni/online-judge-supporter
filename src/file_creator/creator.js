@@ -72,6 +72,7 @@ class Creator {
     }
     await createFolder(testDir, problemShortName);
     const testFolderPath = `${testDir}${problemShortName}`;
+    let index = 0;
     problemData.testCases.forEach(async (test, index) => {
       const inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
       await fs.writeFile(inputPath, test.input);
