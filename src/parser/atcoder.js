@@ -10,6 +10,7 @@ const atcoder_tl_ml_regex = /\s*Time Limit:\s*([\d.]+)\s*sec\s*\/\s*Memory Limit
 class Atcoder {
   constructor() {
     this.name = "atcoder";
+    this.baseUrl = "https://atcoder.jp";
   }
   /** 
    * create a full url to task (https://atcoder.jp/contests/abc397/tasks/abc397_e)

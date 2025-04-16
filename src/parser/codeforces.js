@@ -7,7 +7,33 @@ const codeforces_tl_ml_regex = /(\d+\.\d+|\d+)/;
 class Codeforces {
   constructor() {
     this.name = "codeforces";
+    this.baseUrl = "https://codeforces.com";
   }
+
+  // /**
+  //  * return contest_id, task_id from url in codeforces 
+  //  * 
+  //  * @param {String} url
+  //  * @return {Object} includes contestId, taskId
+  //  */
+  // static getAttributeFromUrl(url) {
+  //   const regexes = [ 
+  //     new RegExp("^https://codeforces.com/contest/([0-9]+)/problem/([A-Za-z0-9]+)"),
+  //     new RegExp("^https://codeforces.com/problemset/problem/([0-9]+)/(A-Za-z0-9]+)"),
+  //     new RegExp("^https://codeforces.com/gym/([0-9]+)/problem/(A-Za-z0-9]+)")
+  //   ];
+  //   for (const regex of regexes) {
+  //     const [_, contestId, taskId] = url.match(regex);
+  //     if (contestId && taskId) {
+  //       return {
+  //         "contestId": contestId,
+  //         "taskId": taskId,
+  //       }
+  //     }
+  //   }
+  //   return undefined;
+  // }
+  
   /** 
    * create a full url to task (https://codeforces.com/contest/2075/problem/A)
    * 

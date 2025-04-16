@@ -24,6 +24,21 @@ class Crawler {
   }
 
   /**
+   * get problem data with url 
+   * 
+   * @param {String} url 
+   * @returns {Promise <Object: { "status", "testcase"}>} problem data with testcases and status code
+   */
+  getProblemFromUrl(url) {
+    for (const site of this.map.values()) {
+      if (url.startsWith(site.baseUrl)) {
+        return site.getProblemFromUrl(url);
+      }
+    }
+    return new Promise.reject(new )
+  }
+
+  /**
    * register crawler
    * @param {Site} site, a class containing the crawler from a site
    */
