@@ -11,7 +11,7 @@ const downloadCommand = (program) => {
     .description(`Download testcases from url`)
     .alias('d')
     .argument('<name>', `problem shortname (a, b, c, test, ...)`)
-    .argument('<url>', `url or source file name (x.cpp/x.rs)`)
+    .argument('<url>', `url to the problem page (currently supports atcoder, codeforces)`)
     .action(async (name, str) => {
       let crawler = new Crawler();
       const spinner = createSpinner();
