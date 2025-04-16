@@ -3,26 +3,41 @@ class Exception {
     return new Error("Can't not create file");
   }
 
-  static NoSourceFile(fileName) {
-    return new Error(`No source file with name: ${fileName}`);
+  static noSourceFile(fileDirectory) {
+    return new Error(`No source file with name: ${fileDirectory}`);
   }
 
-  static NoTestFileAvailable(fileName) {
+  static noTestAvailable(fileName) {
     return new Error(`No test file for source file: ${fileName}`);
   }
 
-  static FileNotFound(fileName) {
-    return new Error(`File Not Found ${fileName}`)
+  static fileNotFound(fileName) {
+    return new Error(`File: ${fileName} Not Found`)
   }
   
-  static TestFileNotFound(fileName, fileIndex) {
+  static testFileNotFound(fileName, fileIndex) {
     return new Error(`Test number ${fileIndex} is not available for source file: ${fileName}`)
   }
 
-  static NoBinaryFile(fileName) {
+  static noBinaryFile(fileName) {
     return new Error(`No binary file found for source file: ${fileName}`);
   }
-}
 
+  static invalidFileFormat(fileName) {
+    return new Error(`Can't not get file extension from: ${fileName}`)
+  }
+
+  static unsupportedFileExtension(extension) {
+    return new Error(`The .${extension} extension is not supported`);
+  }
+
+  static canNotReadTestFile(fileName) {
+    return new Error(`Can't read test file with name ${fileName}`);
+  }
+
+  static unsupportedUrl(url) {
+    return new Error(`Unsupported URL: ${url}`);
+  }
+}
 
 module.exports = { Exception };

@@ -1,12 +1,13 @@
 const { Command } = require('commander');
 const program = new Command();
 const { downloadCommand } = require('./sub_commands/download');
+const version = require('../../package.json').version;
 
 const setupCli = () => {
   program
     .name("online-judge-supporter")
     .description("CLI that supports competitve programming on online judges")
-    .version("0.0.1")
+    .version(version);
 
   downloadCommand(program);
   

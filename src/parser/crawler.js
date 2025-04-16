@@ -1,6 +1,7 @@
 const { Atcoder } = require('./atcoder');
 const { Codeforces } = require('./codeforces');
 const { wrapper } = require('./utils.js');
+const { Exception } = require('../error_handler/error');
 const SUCCESS = 200;
 
 class Crawler {
@@ -35,7 +36,7 @@ class Crawler {
         return site.getProblemFromUrl(url);
       }
     }
-    return new Promise.reject(new )
+    return new Promise.reject(Exception.unsupportedUrl(url));
   }
 
   /**
