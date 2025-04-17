@@ -8,6 +8,7 @@ const {
 } = require('./utils');
 const { Exception } = require('../error_handler/error')
 const { supportedLanguages } = require('./library');
+const { spawn, execSync } = require('child_process');
 
 class Compiler {
   constructor({ filePath }) {
@@ -18,8 +19,22 @@ class Compiler {
     this.filePath = filePath;
   }
   
-  executeTest() {
+  buildFile() {
+    if (this.build && this.build.length > 0) {
+      try {
+        execSync(this.build, { stdio: 'inherit' });
+      } catch (e) {
+        throw Exception.buildFailed(e.message);
+      }
+    }
+  }
+
+  runTest(test) {
     
+  }
+
+  runInteractive() {
+
   }
 
   getLanguageSettings(filePath) { 

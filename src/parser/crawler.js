@@ -28,7 +28,7 @@ class Crawler {
    * get problem data with url 
    * 
    * @param {String} url 
-   * @returns {Promise <Object: { "status", "testcase"}>} problem data with testcases and status code
+   * @returns {Promise <ProblemData>}>} problem data with testcases and status code
    */
   getProblemFromUrl(url) {
     for (const site of this.map.values()) {

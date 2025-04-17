@@ -38,6 +38,10 @@ class Exception {
   static unsupportedUrl(url) {
     return new Error(`Unsupported URL: ${url}`);
   }
+
+  static buildFailed(message) {
+    return new Error(`Build failed: ${message}`);
+  }
 }
 
 module.exports = { Exception };
