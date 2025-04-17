@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const version = require('../../package.json').version;
 const { createSpinner } = require('nanospinner');
+const { Verdict } = require('../test/verdict');
 
 class Logger {
   static info(message) {
@@ -47,8 +48,40 @@ class Logger {
     createSpinner().error({ text: Logger.error(message) });
   }
 
+  static logSuccessSpinner(message) {
+    createSpinner().success({ text: Logger.success(message) });
+  }
+
   static logDefaultSpinner() {
     createSpinner().info({ text: Logger.defaultInfo(), mark: 'i' });
+  }
+
+  static logVerdict(verdict) {
+    switch (verdict) {
+      case Verdict.CE: 
+        Logger.logErrorSpinner(chalk.cyan('CE'));
+        break;
+      case Verdict.MLE:
+        Logger.logErrorSpinner(chalk.yellow('MLE'));
+        break;
+      case Verdict.TLE:
+        Logger.logErrorSpinner(chalk.blue('TLE'));
+        break;
+      case Verdict.RE:
+        Logger.logErrorSpinner(chalk.red('RE'));
+        break;
+      case Verdict.WA:
+        Logger.logErrorSpinner(chalk.redBright('WA'));
+        break;
+      case Verdict.AC:
+        Logger.logSuccessSpinner(chalk.green('AC'));
+        break;
+      case Verdict.UNKNOWN:
+        Logger.logErrorSpinner(chalk.grey('UNKNOWN'));
+        break;
+      default:
+        Logger.logErrorSpinner('Unknown error');
+    }
   }
 }
 
