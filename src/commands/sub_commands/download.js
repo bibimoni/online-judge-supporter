@@ -15,7 +15,6 @@ const downloadCommand = (program) => {
     .action(async (name, str) => {
       let crawler = new Crawler();
       const spinner = createSpinner();
-      spinner.info({ text: Logger.defaultInfo(), mark: 'i' });
       spinner.start({ text: Logger.access(`Downloading testcases from ${str}`) });
       try {
         const problemData = await crawler.getProblemFromUrl(str);

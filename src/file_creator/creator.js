@@ -2,11 +2,12 @@ const fs = require('fs-extra');
 const { Crawler } = require('../parser/crawler');
 const { ProblemData } = require('../test/problem_data')
 const { getConfig, loadConfigFile, mode } = require('../config/load_config');
-const { createFolder, formatDirPath } = require('./utils');
+const { formatDirPath } = require('./utils');
 const {
-  multiTestFolderName,
+  multiTestFolderPrefix,
   inputPrefixTestName,
   ansPrefixTestName,
+  testFolderPrefix
 } = require('../config/load_config');
 const {
   getFileNameFromPath,
@@ -76,12 +77,13 @@ class Creator {
     else {
       problemShortName = fileName;
     }
-    await createFolder(testDir, problemShortName);
-    const testFolderPath = `${testDir}${problemShortName}`;
+    // await createFolder(testDir, problemShortName);
+    const testFolderPath = `${testDir}${testFolderPrefix}${problemShortName}`;
+    await fs.ensureDir(testFolderPath, mode);
     let index = 0;
     problemData.testCases.forEach(test => {
       // find testcase number
-      let multiInputPath = `${testFolderPath}/${multiTestFolderName}_${index}/`;
+      let multiInputPath = `${testFolderPath}/${multiTestFolderPrefix}${index}/`;
       let inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
       let outputPath = `${testFolderPath}/${ansPrefixTestName}${index}`;
       while (
@@ -90,24 +92,24 @@ class Creator {
         || (fs.existsSync(outputPath) && test.isMultiTest)
       ) {
         index += 1;
-        multiInputPath = `${testFolderPath}/${multiTestFolderName}_${index}/`;
+        multiInputPath = `${testFolderPath}/${multiTestFolderPrefix}${index}/`;
         inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
         outputPath = `${testFolderPath}/${ansPrefixTestName}${index}`;
       }
 
       fs.writeFileSync(inputPath, test.input);
-      onFileCreate(`${problemShortName}/${inputPrefixTestName}${index}`, test.input, 'input');
+      onFileCreate(`${testFolderPrefix}${problemShortName}/${inputPrefixTestName}${index}`, test.input, 'input');
       fs.writeFileSync(outputPath, test.output);
-      onFileCreate(`${problemShortName}/${ansPrefixTestName}${index}`, test.output, 'output');
+      onFileCreate(`${testFolderPrefix}${problemShortName}/${ansPrefixTestName}${index}`, test.output, 'output');
 
       if (test.isMultiTest) {
         fs.ensureDir(multiInputPath, mode);
-        onFolderCreate(`${problemShortName}/${multiTestFolderName}_${index}/`);
+        onFolderCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/`);
         test.multiTestCase.forEach(async (mutliTest, multiTestIndex) => {
-          const multiTestPath = `${multiInputPath}${inputPrefixTestName}${multiTestIndex}`;
+          const multiTestPath = `${testFolderPrefix}${multiInputPath}${inputPrefixTestName}${multiTestIndex}`;
           fs.writeFileSync(multiTestPath, mutliTest.input); 
           // multiTest trigger
-          // onFileCreate(`${problemShortName}/${multiTestFolderName}_${index}/${inputPrefixTestName}${multiTestIndex}`, '', 'multitest input');
+          // onFileCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/${inputPrefixTestName}${multiTestIndex}`, '', 'multitest input');
         })
       }
     });

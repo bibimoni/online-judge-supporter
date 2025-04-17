@@ -1,9 +1,9 @@
 const fs = require('fs-extra');
 const { mode } = require('../config/load_config');
 
-const createFolder = async (filePath, folderName) => {
-  await fs.ensureDir(`${filePath}/${folderName}/`, mode);
-};
+// const createFolder = async (filePath, folderName) => {
+//   await fs.ensureDir(`${filePath}/${folderName}/`, mode);
+// };
 
 // ensure directory path to have the finally slash
 const formatDirPath = (path) => {
@@ -13,4 +13,4 @@ const formatDirPath = (path) => {
   return path;
 }
 
-module.exports = { createFolder, formatDirPath };
+module.exports = { formatDirPath };

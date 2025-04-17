@@ -42,6 +42,14 @@ class Logger {
   static logFolderSpinner(path) {
     createSpinner().info({ text: Logger.logFolder(path), mark: 'i' });
   }
+
+  static logErrorSpinner(message) {
+    createSpinner().error({ text: Logger.error(message) });
+  }
+
+  static logDefaultSpinner() {
+    createSpinner().info({ text: Logger.defaultInfo(), mark: 'i' });
+  }
 }
 
 module.exports = { Logger };
