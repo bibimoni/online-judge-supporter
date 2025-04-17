@@ -2,11 +2,12 @@ const fs = require('fs-extra');
 const { Crawler } = require('../parser/crawler');
 const { ProblemData } = require('../test/problem_data')
 const { getConfig, loadConfigFile, mode } = require('../config/load_config');
-const { createFolder } = require('./utils');
+const { formatDirPath } = require('./utils');
 const {
-  multiTestFolderName,
+  multiTestFolderPrefix,
   inputPrefixTestName,
   ansPrefixTestName,
+  testFolderPrefix
 } = require('../config/load_config');
 const {
   getFileNameFromPath,
@@ -59,10 +60,16 @@ class Creator {
   *
   * @param {String} testFolder directory that will contain the test file
   * @param {ProblemData} problemData crawlered data
-  * @param {String} fileName, if provided use this as the test folder name
-  * otherwise use the problemData' short name
+  * @param {Object} options, if fileName is provided, use it as the test folder name
+  * otherwise use the problemData' short name, onFileCreate and onFolderCreate will 
+  * get invoked when file or folder is created, use logger please.
   */
-  static async generateTestFile(testDir, problemData, { fileName = "" } = {}) {
+  static async generateTestFile(
+    testDir, 
+    problemData, 
+    { fileName = "", onFileCreate = () => {}, onFolderCreate = () => {} } = {} 
+  ) {
+    testDir = formatDirPath(testDir);
     let problemShortName;
     if (!fileName || fileName.length === 0) {
       problemShortName = Crawler.getProblemShortName(problemData.name).toLowerCase();
@@ -70,21 +77,48 @@ class Creator {
     else {
       problemShortName = fileName;
     }
+<<<<<<< HEAD
     await createFolder(testDir, problemShortName);
     const testFolderPath = `${testDir}${problemShortName}`;
     
     problemData.testCases.forEach(async (test, index) => {
       const inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
       await fs.writeFile(inputPath, test.input);
+=======
+    // await createFolder(testDir, problemShortName);
+    const testFolderPath = `${testDir}${testFolderPrefix}${problemShortName}`;
+    await fs.ensureDir(testFolderPath, mode);
+    let index = 0;
+    problemData.testCases.forEach(test => {
+      // find testcase number
+      let multiInputPath = `${testFolderPath}/${multiTestFolderPrefix}${index}/`;
+      let inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
+      let outputPath = `${testFolderPath}/${ansPrefixTestName}${index}`;
+      while (
+        fs.existsSync(multiInputPath)
+        || fs.existsSync(inputPath)
+        || (fs.existsSync(outputPath) && test.isMultiTest)
+      ) {
+        index += 1;
+        multiInputPath = `${testFolderPath}/${multiTestFolderPrefix}${index}/`;
+        inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
+        outputPath = `${testFolderPath}/${ansPrefixTestName}${index}`;
+      }
 
-      const outputPath = `${testFolderPath}/${ansPrefixTestName}${index}`;
-      await fs.writeFile(outputPath, test.output);
+      fs.writeFileSync(inputPath, test.input);
+      onFileCreate(`${testFolderPrefix}${problemShortName}/${inputPrefixTestName}${index}`, test.input, 'input');
+      fs.writeFileSync(outputPath, test.output);
+      onFileCreate(`${testFolderPrefix}${problemShortName}/${ansPrefixTestName}${index}`, test.output, 'output');
+>>>>>>> c895e7d539bd3e7c26e2bef44fc7138fc824e921
+
       if (test.isMultiTest) {
-        const multiInputPath = `${testFolderPath}/${multiTestFolderName}_${index}/`;
         fs.ensureDir(multiInputPath, mode);
+        onFolderCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/`);
         test.multiTestCase.forEach(async (mutliTest, multiTestIndex) => {
-          const multiTestPath = `${multiInputPath}${inputPrefixTestName}${multiTestIndex}`;
-          await fs.writeFile(multiTestPath, mutliTest.input);
+          const multiTestPath = `${testFolderPrefix}${multiInputPath}${inputPrefixTestName}${multiTestIndex}`;
+          fs.writeFileSync(multiTestPath, mutliTest.input); 
+          // multiTest trigger
+          // onFileCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/${inputPrefixTestName}${multiTestIndex}`, '', 'multitest input');
         })
       }
     });
@@ -97,11 +131,20 @@ class Creator {
   *
   * @param {String} filePath file path to the source file 
   * @param {ProblemData} problemData crawlered data
+  * @param {Object} options, if fileName is provided, use it as the test folder name
+  * otherwise use the problemData' short name, onFileCreate and onFolderCreate will 
+  * get invoked when file or folder is created. use logger please.
   */
-  static async generateTestFileWithFilePath(filePath, problemData) {
+  static async generateTestFileWithFilePath(
+    filePath, 
+    problemData,
+    { onFileCreated = () => {}, onFolderCreated = () => {}} = {}
+  ) {
     console.log(getFileNameFromPath(filePath), "filename");
     return await Creator.generateTestFile(getDirectoryFromPath(filePath), problemData, {
-      fileName: getBaseFileName(getFileNameFromPath(filePath))
+      fileName: getBaseFileName(getFileNameFromPath(filePath)),
+      onFileCreated, 
+      onFolderCreated,
     });
   }
 }

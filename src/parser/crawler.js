@@ -1,6 +1,7 @@
 const { Atcoder } = require('./atcoder');
 const { Codeforces } = require('./codeforces');
 const { wrapper } = require('./utils.js');
+const { Exception } = require('../error_handler/error');
 const SUCCESS = 200;
 
 class Crawler {
@@ -21,6 +22,21 @@ class Crawler {
   static getProblemShortName(name) {
     const match = name.match(/([a-zA-Z0-9])+/);
     return match ? match[0] : "";
+  }
+
+  /**
+   * get problem data with url 
+   * 
+   * @param {String} url 
+   * @returns {Promise <ProblemData>}>} problem data with testcases and status code
+   */
+  getProblemFromUrl(url) {
+    for (const site of this.map.values()) {
+      if (url.startsWith(site.baseUrl)) {
+        return site.getProblemFromUrl(url);
+      }
+    }
+    return new Promise.reject(Exception.unsupportedUrl(url));
   }
 
   /**
