@@ -77,14 +77,6 @@ class Creator {
     else {
       problemShortName = fileName;
     }
-<<<<<<< HEAD
-    await createFolder(testDir, problemShortName);
-    const testFolderPath = `${testDir}${problemShortName}`;
-    
-    problemData.testCases.forEach(async (test, index) => {
-      const inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
-      await fs.writeFile(inputPath, test.input);
-=======
     // await createFolder(testDir, problemShortName);
     const testFolderPath = `${testDir}${testFolderPrefix}${problemShortName}`;
     await fs.ensureDir(testFolderPath, mode);
@@ -109,7 +101,6 @@ class Creator {
       onFileCreate(`${testFolderPrefix}${problemShortName}/${inputPrefixTestName}${index}`, test.input, 'input');
       fs.writeFileSync(outputPath, test.output);
       onFileCreate(`${testFolderPrefix}${problemShortName}/${ansPrefixTestName}${index}`, test.output, 'output');
->>>>>>> c895e7d539bd3e7c26e2bef44fc7138fc824e921
 
       if (test.isMultiTest) {
         fs.ensureDir(multiInputPath, mode);
