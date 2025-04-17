@@ -4,10 +4,22 @@ const { createSpinner } = require('nanospinner');
 const { Verdict } = require('../test/verdict');
 
 class Logger {
+  static input(input) {
+    console.log(`${chalk.cyanBright('Input:')}\n${input}`);
+  }
+
+  static output(output) {
+    console.log(`${chalk.red('Ouput:')}\n${output}`);
+  }
+
+  static answer(answer) {
+    console.log(`${chalk.green('Expected:')}\n${answer}`);
+  }
+
   static info(message) {
     return `[${chalk.blue('INFO')}] ${message}`;
   }
-  
+
   static debug(message) {
     return `[${chalk.bold.hex('#FFA500')('DEBUG')}] ${message}`;
   }
@@ -15,11 +27,11 @@ class Logger {
   static error(message) {
     return `[${chalk.red('ERROR')}] ${message}`;
   }
-  
+
   static access(message) {
     return `[${chalk.cyan('ACCESS')}] ${message}`;
   }
-  
+
   static success(message) {
     return `[${chalk.green('SUCCESS')}] ${message}`;
   }
@@ -32,55 +44,59 @@ class Logger {
     return Logger.info(`Saved ${type} to ${path}\n${content}`);
   }
 
-  static logFileSpinner(path, content, type) {
-    createSpinner().info({ text: Logger.logFile(path, content, type), mark: 'i' });
+  static logFileSpinner(path, content, type, { spinner = createSpinner() } = {}) {
+    spinner.info({ text: Logger.logFile(path, content, type), mark: 'i' });
   }
 
   static logFolder(path) {
     return Logger.info(`Created ${path}`);
   }
-  
-  static logFolderSpinner(path) {
-    createSpinner().info({ text: Logger.logFolder(path), mark: 'i' });
+
+  static logFolderSpinner(path, { spinner = createSpinner() } = {}) {
+    spinner.info({ text: Logger.logFolder(path), mark: 'i' });
   }
 
-  static logErrorSpinner(message) {
-    createSpinner().error({ text: Logger.error(message) });
+  static logErrorSpinner(message, { spinner = createSpinner() } = {}) {
+    spinner.error({ text: Logger.error(message) });
   }
 
-  static logSuccessSpinner(message) {
-    createSpinner().success({ text: Logger.success(message) });
+  static logSuccessSpinner(message, { spinner = createSpinner() } = {}) {
+    spinner.success({ text: Logger.success(message) });
   }
 
-  static logDefaultSpinner() {
-    createSpinner().info({ text: Logger.defaultInfo(), mark: 'i' });
+  static logDefaultSpinner({ spinner = createSpinner() } = {}) {
+    spinner.info({ text: Logger.defaultInfo(), mark: 'i' });
   }
 
-  static logVerdict(verdict) {
+  static logInfoSpinner(message, { spinner = createSpinner() } = {}) {
+    spinner.info({ text: Logger.info(message), mark: 'i' });
+  }
+
+  static logVerdict(verdict, { spinner = createSpinner() } = {}) {
     switch (verdict) {
-      case Verdict.CE: 
-        Logger.logErrorSpinner(chalk.cyan('CE'));
+      case Verdict.CE:
+        Logger.logErrorSpinner(chalk.cyan('CE'), { spinner: spinner });
         break;
       case Verdict.MLE:
-        Logger.logErrorSpinner(chalk.yellow('MLE'));
+        Logger.logErrorSpinner(chalk.yellow('MLE'), { spinner: spinner });
         break;
       case Verdict.TLE:
-        Logger.logErrorSpinner(chalk.blue('TLE'));
+        Logger.logErrorSpinner(chalk.blue('TLE'), { spinner: spinner });
         break;
       case Verdict.RE:
-        Logger.logErrorSpinner(chalk.red('RE'));
+        Logger.logErrorSpinner(chalk.red('RE'), { spinner: spinner });
         break;
       case Verdict.WA:
-        Logger.logErrorSpinner(chalk.redBright('WA'));
+        Logger.logErrorSpinner(chalk.redBright('WA'), { spinner: spinner });
         break;
       case Verdict.AC:
-        Logger.logSuccessSpinner(chalk.green('AC'));
+        Logger.logSuccessSpinner(chalk.green('AC'), { spinner: spinner });
         break;
       case Verdict.UNKNOWN:
-        Logger.logErrorSpinner(chalk.grey('UNKNOWN'));
+        Logger.logErrorSpinner(chalk.grey('UNKNOWN'), { spinner: spinner });
         break;
       default:
-        Logger.logErrorSpinner('Unknown error');
+        Logger.logErrorSpinner('Unknown error', { spinner: spinner });
     }
   }
 }

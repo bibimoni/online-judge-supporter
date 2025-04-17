@@ -106,7 +106,7 @@ class Creator {
         fs.ensureDir(multiInputPath, mode);
         onFolderCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/`);
         test.multiTestCase.forEach(async (mutliTest, multiTestIndex) => {
-          const multiTestPath = `${testFolderPrefix}${multiInputPath}${inputPrefixTestName}${multiTestIndex}`;
+          const multiTestPath = `${multiInputPath}${inputPrefixTestName}${multiTestIndex}`;
           fs.writeFileSync(multiTestPath, mutliTest.input); 
           // multiTest trigger
           // onFileCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/${inputPrefixTestName}${multiTestIndex}`, '', 'multitest input');
@@ -131,7 +131,6 @@ class Creator {
     problemData,
     { onFileCreated = () => {}, onFolderCreated = () => {}} = {}
   ) {
-    console.log(getFileNameFromPath(filePath), "filename");
     return await Creator.generateTestFile(getDirectoryFromPath(filePath), problemData, {
       fileName: getBaseFileName(getFileNameFromPath(filePath)),
       onFileCreated, 

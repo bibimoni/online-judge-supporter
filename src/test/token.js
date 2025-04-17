@@ -123,7 +123,6 @@ class Token {
   }
 
   cmp(otherToken) {
-    console.log(this.log(), otherToken.log());
     return TokenType.cmp(this, otherToken);
   }
 }

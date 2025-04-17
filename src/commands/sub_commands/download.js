@@ -18,14 +18,14 @@ const downloadCommand = (program) => {
       spinner.start({ text: Logger.access(`Downloading testcases from ${str}`) });
       try {
         const problemData = await crawler.getProblemFromUrl(str);
-        spinner.success({ text: Logger.success(`Testcase downloaded from ${str}`) });
+        Logger.logSuccessSpinner(`Testcase downloaded from ${str}`, { spinner: spinner });
         Creator.generateTestFile(path, problemData, {
           fileName: name,
           onFileCreate: Logger.logFileSpinner,
           onFolderCreate: Logger.logFolderSpinner
         });
       } catch (_) {
-        spinner.error({ text: Logger.error(Exception.unsupportedUrl(str).message) });
+        Logger.logErrorSpinner(Exception.unsupportedUrl(str).message, { spinner: spinner});
       }
     });
 };
