@@ -38,7 +38,7 @@
     "rs": {
       "template": "",
       "build": "rustc '{relative_file}' -o '{file_base}'",
-      "debug": "RUSTFLAGS=\"--cfg DEBUG\" rustc '{relative_file}' -o",
+      "debug": "rustc --cfg DEBUG '{relative_file}' -o '{file_base}'",
       "run": "./\"{file_base}\""
     }
   }  

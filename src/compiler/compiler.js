@@ -10,6 +10,7 @@ const { Exception } = require('../error_handler/error')
 const { supportedLanguages } = require('./library');
 const { spawn, execSync } = require('child_process');
 const { TestCase } = require('../test/testcase');
+const readline = require('readline');
 const successExitCode = 0;
 
 class Compiler {
@@ -23,10 +24,11 @@ class Compiler {
     this.filePath = filePath;
   }
 
-  buildFile() {
-    if (this.build && this.build.length > 0) {
+  buildFile({ debug }) {
+    const buildCmd = debug ? this.debug : this.build;
+    if (buildCmd && buildCmd.length > 0) {
       try {
-        execSync(this.build, { stdio: 'inherit' });
+        execSync(buildCmd, { stdio: 'inherit' });
       } catch (e) {
         throw Exception.buildFailed(e.message);
       }
@@ -53,7 +55,6 @@ class Compiler {
     const input = testcase.input;
     const child = spawn(this.run, [], {
       shell: true,
-      timeout: this.timeout,
     });
 
     let output = '';
@@ -96,7 +97,46 @@ class Compiler {
   }
 
   runInteractive() {
+    return new Promise(() => {
+      const child = spawn(this.run, [], {
+        shell: true,
+      });
+  
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
 
+      child.stdout.pipe(process.stdout);
+      child.stderr.pipe(process.stderr);
+
+      rl.on('line', line => {
+        child.stdin.write(line + '\n');
+      });
+
+      child.on('exit', () => {
+        rl.close();
+      });
+    });
+  }
+
+  runTestWithDebug(input) {
+    return new Promise(resolve => {
+      const child = spawn(this.run, [], {
+        shell: true,
+        timeout: this.timeout,
+      });
+
+      if (input) {
+        child.stdin.write(input);
+      }
+      child.stdout.pipe(process.stdout);
+      child.stderr.pipe(process.stderr);
+
+      child.on('exit', () => {
+        resolve();
+      });
+    });
   }
 
   getLanguageSettings(filePath) {

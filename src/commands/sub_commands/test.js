@@ -9,7 +9,7 @@ const { createSpinner } = require('nanospinner');
 const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
   const spinner = createSpinner();
   Logger.logInfoSpinner(`Input file: ${testcase.fileName}`);
-  spinner.start({ text: Logger.info(`Running...`) })
+  spinner.start({ text: Logger.info(`Running...`) });
   const result = await compiler.runTest(testcase, { multiTest: multiTest });
   if (!multiTest) {
     Logger.logVerdict(result["verdict"], { spinner: spinner });
@@ -26,6 +26,11 @@ const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
   }
 }
 
+const startJudgeWithDebug = async (testcase, compiler) => {
+  Logger.logInfoSpinner(`Input file: ${testcase.fileName}`);
+  await compiler.runTestWithDebug(testcase.input);
+}
+
 const testCommand = (program) => {
   program
     .command('test')
@@ -34,8 +39,11 @@ const testCommand = (program) => {
     .argument('<filename>', 'Name of the source code (a.rs, b.cpp, c.py, ...)')
     .option('-t, --test <index>', 'test index (starts from 1)')
     .option('-m, --multi_test <index>', 'multiple test index (starts from 1)')
+    .option('-i, --interactive', 'enable interactive mode (input manually)')
+    .option('-d, --debug', 'build code with debug flag')
     .action(async (fileName, options) => {
-      const filePath = `${path}/${fileName}`;
+      // const filePath = `${path}/${fileName}`;
+      const filePath = `${fileName}`;
       const testIndex = options.test;
       let testEntry = null;
       if (testIndex) {
@@ -56,6 +64,7 @@ const testCommand = (program) => {
         Logger.logErrorSpinner(e.message);
         return;
       }
+
       let compiler;
       try {
         if (Object.keys(testcases).length === 0) {
@@ -89,17 +98,31 @@ const testCommand = (program) => {
       }
 
       try {
-        compiler.buildFile();
+        compiler.buildFile({ debug: options.debug });
       } catch (_) {
         Logger.logVerdict(Verdict.CE);
         return;
       }
+
+      if (options.interactive) {
+        await compiler.runInteractive();
+        return;
+      }
+
       if (testEntry === null) {
         for (const test of Object.values(testcases)) {
-          await startJudging(test, compiler);
+          if (!options.interactive&& options.debug) {
+            await startJudgeWithDebug(test, compiler);
+          } else {
+            await startJudging(test, compiler);
+          }
         }
       } else {
-        await startJudging(testOne, compiler, { multiTest: multiTestEntry !== null });
+        if (!options.interactive && options.debug) {
+          await startJudgeWithDebug(testOne, compiler);
+        } else {
+          await startJudging(testOne, compiler, { multiTest: multiTestEntry !== null });
+        }
       }
     });
 };
