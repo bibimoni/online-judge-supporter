@@ -20,7 +20,7 @@
     "cpp": {
       "template": "",
       "build": "g++-14 '{relative_file}' -o {file_base} -std=c++20 -O2 -Wshadow -Wall",
-      "debug": "g++-14 '{relative_file}'-o {file_base} -std=c++20 -O2 --DEBUG -Wshadow -Wall",
+      "debug": "g++-14 '{relative_file}' -o {file_base} -std=c++20 -O2 -DDEBUG -Wshadow -Wall",
       "run": "./\"{file_base}\""
     },
     "py": {
