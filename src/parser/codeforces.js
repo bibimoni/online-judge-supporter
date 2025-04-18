@@ -10,30 +10,6 @@ class Codeforces {
     this.baseUrl = "https://codeforces.com";
   }
 
-  // /**
-  //  * return contest_id, task_id from url in codeforces 
-  //  * 
-  //  * @param {String} url
-  //  * @return {Object} includes contestId, taskId
-  //  */
-  // static getAttributeFromUrl(url) {
-  //   const regexes = [ 
-  //     new RegExp("^https://codeforces.com/contest/([0-9]+)/problem/([A-Za-z0-9]+)"),
-  //     new RegExp("^https://codeforces.com/problemset/problem/([0-9]+)/(A-Za-z0-9]+)"),
-  //     new RegExp("^https://codeforces.com/gym/([0-9]+)/problem/(A-Za-z0-9]+)")
-  //   ];
-  //   for (const regex of regexes) {
-  //     const [_, contestId, taskId] = url.match(regex);
-  //     if (contestId && taskId) {
-  //       return {
-  //         "contestId": contestId,
-  //         "taskId": taskId,
-  //       }
-  //     }
-  //   }
-  //   return undefined;
-  // }
-  
   /** 
    * create a full url to task (https://codeforces.com/contest/2075/problem/A)
    * 
@@ -61,12 +37,12 @@ class Codeforces {
 
       test_data.name = $('.title').contents().first().text();
 
-      test_data.timeLimit = parseFloat($('.time-limit').contents().filter(function() {
+      test_data.timeLimit = parseFloat($('.time-limit').contents().filter(function () {
         return this.type == 'text';
       })
         .text().trim().match(codeforces_tl_ml_regex)[0]);
 
-      test_data.memoryLimit = parseFloat($('.memory-limit').contents().filter(function() {
+      test_data.memoryLimit = parseFloat($('.memory-limit').contents().filter(function () {
         return this.type == 'text';
       })
         .text().trim().match(codeforces_tl_ml_regex)[0]);

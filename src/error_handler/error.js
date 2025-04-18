@@ -1,5 +1,5 @@
 class Exception {
-  static canNotCreateFile() { 
+  static canNotCreateFile() {
     return new Error("Can't not create file");
   }
 
@@ -14,7 +14,7 @@ class Exception {
   static fileNotFound(fileName) {
     return new Error(`File: ${fileName} Not Found`)
   }
-  
+
   static testFileNotFound(fileName, fileIndex) {
     return new Error(`Test number ${fileIndex} is not available for source file: ${fileName}`)
   }

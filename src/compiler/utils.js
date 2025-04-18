@@ -39,15 +39,15 @@ const getDirectoryFromPath = (filePath) => {
 };
 
 const getFileExtension = (fileName) => {
-  return fileName.split(".").reverse()[0]; 
+  return fileName.split(".").reverse()[0];
 };
 
 const getBaseFileName = (fileName) => {
-  return fileName.slice(0, -getFileExtension(fileName).length 
+  return fileName.slice(0, -getFileExtension(fileName).length
     - (fileName.includes(".") ? 1 : 0));
 };
 
-module.exports = { 
+module.exports = {
   validateFilePath,
   getFileNameFromPath,
   getFileExtension,

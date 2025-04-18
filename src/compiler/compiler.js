@@ -89,7 +89,7 @@ class Compiler {
     }
     if (exitCode !== successExitCode) {
       return this.#wrapper(output, Verdict.RE);
-    }     
+    }
     if (multiTest) {
       return this.#wrapper(output, Verdict.UNKNOWN);
     }
@@ -101,7 +101,7 @@ class Compiler {
       const child = spawn(this.run, [], {
         shell: true,
       });
-  
+
       const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,

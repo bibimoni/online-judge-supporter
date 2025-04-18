@@ -15,7 +15,7 @@ let outputPrefixTestName = "out";
 let testFolderPrefix = "__test_";
 /**
  *  the user may be able to change the config without exiting the program
- *  so this function should be invoked everytime the config change
+ *  so this function should be invoked everytime the config changed
  */
 const loadConfigFile = () => {
   // check if the config exists, if not, clone the default config to it

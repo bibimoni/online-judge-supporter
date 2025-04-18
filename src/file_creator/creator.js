@@ -65,9 +65,9 @@ class Creator {
   * get invoked when file or folder is created, use logger please.
   */
   static async generateTestFile(
-    testDir, 
-    problemData, 
-    { fileName = "", onFileCreate = () => {}, onFolderCreate = () => {} } = {} 
+    testDir,
+    problemData,
+    { fileName = "", onFileCreate = () => { }, onFolderCreate = () => { } } = {}
   ) {
     testDir = formatDirPath(testDir);
     let problemShortName;
@@ -107,7 +107,7 @@ class Creator {
         onFolderCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/`);
         test.multiTestCase.forEach(async (mutliTest, multiTestIndex) => {
           const multiTestPath = `${multiInputPath}${inputPrefixTestName}${multiTestIndex}`;
-          fs.writeFileSync(multiTestPath, mutliTest.input); 
+          fs.writeFileSync(multiTestPath, mutliTest.input);
           // multiTest trigger
           // onFileCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/${inputPrefixTestName}${multiTestIndex}`, '', 'multitest input');
         })
@@ -127,13 +127,13 @@ class Creator {
   * get invoked when file or folder is created. use logger please.
   */
   static async generateTestFileWithFilePath(
-    filePath, 
+    filePath,
     problemData,
-    { onFileCreated = () => {}, onFolderCreated = () => {}} = {}
+    { onFileCreated = () => { }, onFolderCreated = () => { } } = {}
   ) {
     return await Creator.generateTestFile(getDirectoryFromPath(filePath), problemData, {
       fileName: getBaseFileName(getFileNameFromPath(filePath)),
-      onFileCreated, 
+      onFileCreated,
       onFolderCreated,
     });
   }

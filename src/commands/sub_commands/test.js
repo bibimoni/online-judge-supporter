@@ -111,7 +111,7 @@ const testCommand = (program) => {
 
       if (testEntry === null) {
         for (const test of Object.values(testcases)) {
-          if (!options.interactive&& options.debug) {
+          if (!options.interactive && options.debug) {
             await startJudgeWithDebug(test, compiler);
           } else {
             await startJudging(test, compiler);

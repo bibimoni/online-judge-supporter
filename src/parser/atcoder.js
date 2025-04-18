@@ -35,7 +35,7 @@ class Atcoder {
   getProblemFromUrl(url) {
     const call_back = (html) => {
       const $ = cheerio.load(html);
-    
+
       let test_data = new ProblemData();
       let current_test = new TestCase();
       $('.lang-en').find('.part').filter((_, el) => {
@@ -48,20 +48,20 @@ class Atcoder {
           current_test = new TestCase();
         }
       });
-    
+
       const tl_ml = $('#task-statement').prev().text().replace(/[\t\n]/g, '');
       const [, timeLimit, memoryLimit] = tl_ml.match(atcoder_tl_ml_regex);
       test_data.timeLimit = parseFloat(timeLimit);
       test_data.memoryLimit = parseInt(memoryLimit);
-    
+
       const name = $('#contest-nav-tabs').next().find('span').contents().first().text();
       test_data.name = name.replace(/[\t\n]/g, '');
       return test_data;
     };
     return new Promise((resolve, reject) => {
       getHtmlData(url)
-      .then(call_back)
-      .then(obj => {
+        .then(call_back)
+        .then(obj => {
           obj.url = url;
           resolve(obj);
         })
