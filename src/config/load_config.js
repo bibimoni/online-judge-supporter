@@ -7,13 +7,14 @@ const { dirname } = require("path");
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
 
 let config = JSON.parse(fs.readFileSync(defaultConfigDir, "utf8")); // init as default
-let mode = 0o2775;
-let multiTestFolderPrefix = "__multi_";
-let ansPrefixTestName = "ans";
-let inputPrefixTestName = "in";
-let outputPrefixTestName = "out";
-let testFolderPrefix = "__test_";
-let testcaseStartIndex = 1;
+const mode = 0o2775;
+const multiTestFolderPrefix = "__multi_";
+const ansPrefixTestName = "ans";
+const inputPrefixTestName = "in";
+const outputPrefixTestName = "out";
+const testFolderPrefix = "__test_";
+const testcaseStartIndex = 1;
+
 /**
  *  the user may be able to change the config without exiting the program
  *  so this function should be invoked everytime the config changed
@@ -34,7 +35,7 @@ const loadConfigFile = () => {
     if (o && typeof o == "object") {
       config = o;
     }
-  } catch { }
+  } catch {}
 };
 
 /**
