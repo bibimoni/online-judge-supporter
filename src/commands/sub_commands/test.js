@@ -1,10 +1,12 @@
-const { Logger } = require('../logger');
-const { Compiler } = require('../../compiler/compiler');
+const { Logger } = require("../logger");
+const { Compiler } = require("../../compiler/compiler");
 const path = process.cwd();
-const { TestCase } = require('../../test/testcase');
-const { Exception } = require('../../error_handler/error');
-const { Verdict } = require('../../test/verdict');
-const { createSpinner } = require('nanospinner');
+const { TestCase } = require("../../test/testcase");
+const { Exception } = require("../../error_handler/error");
+const { Verdict } = require("../../test/verdict");
+const { createSpinner } = require("nanospinner");
+const { Creator } = require("../../file_creator/creator");
+const { formatDirPath } = require("../../file_creator/utils");
 
 const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
   const spinner = createSpinner();
@@ -24,36 +26,61 @@ const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
       Logger.answer(testcase.output);
     }
   }
-}
+};
 
 const startJudgeWithDebug = async (testcase, compiler) => {
   Logger.logInfoSpinner(`Input file: ${testcase.fileName}`);
   await compiler.runTestWithDebug(testcase.input);
-}
+};
+
+const addTestCaseManually = (fileName) => {
+  Creator.addTestCase(formatDirPath(path), fileName, {
+    onBeginInput: () => {
+      Logger.logInfoSpinner("Enter Input (press Ctrl + C to exit)");
+    },
+    onBeginOutput: () => {
+      Logger.logInfoSpinner("Enter Expected output (press Ctrl + C to exit)");
+    },
+    onFileCreate: Logger.logFileSpinner,
+    onFolderCreate: Logger.logFolderSpinner,
+  });
+};
+
+const viewTestCase = (testcase) => {
+  Logger.logInfoSpinner(`Testcase ${testcase.fileName}`);
+  Logger.input(testcase.input);
+  Logger.output(testcase.output);
+};
 
 const testCommand = (program) => {
   program
-    .command('test')
-    .description('Test source file with testcases')
-    .alias('t')
-    .argument('<filename>', 'Name of the source code (a.rs, b.cpp, c.py, ...)')
-    .option('-t, --test <index>', 'test index (starts from 1)')
-    .option('-m, --multi_test <index>', 'multiple test index (starts from 1)')
-    .option('-i, --interactive', 'enable interactive mode (input manually)')
-    .option('-d, --debug', 'build code with debug flag')
+    .command("test")
+    .description("Test source file with testcases")
+    .alias("t")
+    .argument("<filename>", "Name of the source code (a.rs, b.cpp, c.py, ...)")
+    .option("-t, --test <index>", "test index (starts from 1)")
+    .option("-m, --multi_test <index>", "multiple test index (starts from 1)")
+    .option("-i, --interactive", "enable interactive mode (input manually)")
+    .option("-d, --debug", "build code with debug flag")
+    .option("-a, --add", "add testcase to the current problem")
+    .option("-v, --view", "view testcase")
     .action(async (fileName, options) => {
       // const filePath = `${path}/${fileName}`;
       const filePath = `${fileName}`;
+      if (options.add) {
+        addTestCaseManually(fileName);
+        return;
+      }
       const testIndex = options.test;
       let testEntry = null;
       if (testIndex) {
-        testEntry = (parseInt(testIndex) - 1).toString();
+        testEntry = parseInt(testIndex).toString();
       }
 
       const multiTestIndex = options.multi_test;
       let multiTestEntry = null;
       if (multiTestIndex) {
-        multiTestEntry = parseInt(multiTestIndex) - 1;
+        multiTestEntry = parseInt(multiTestIndex);
       }
 
       let testcases;
@@ -70,30 +97,58 @@ const testCommand = (program) => {
         if (Object.keys(testcases).length === 0) {
           Logger.logErrorSpinner(Exception.noTestAvailable(fileName).message);
           return;
-        } else if (multiTestEntry === null && testEntry !== null && !testcases[testEntry]) {
-          Logger.logErrorSpinner(Exception.testFileNotFound(fileName, testIndex).message);
+        } else if (
+          multiTestEntry === null &&
+          testEntry !== null &&
+          !testcases[testEntry]
+        ) {
+          Logger.logErrorSpinner(
+            Exception.testFileNotFound(fileName, testIndex).message,
+          );
           return;
         } else if (multiTestEntry !== null && testEntry === null) {
-          Logger.logErrorSpinner('Please use -m/--multi_test <index> together with -t/-test <index>');
+          Logger.logErrorSpinner(
+            "Please use -m/--multi_test <index> together with -t/-test <index>",
+          );
           return;
         }
         if (testEntry !== null) {
           testOne = testcases[testEntry];
         }
-        if (multiTestEntry !== null && !testOne.multiTestCaseAt(multiTestEntry)) {
-          Logger.logErrorSpinner(Exception.testFileNotFound(fileName, multiTestIndex));
+        if (
+          multiTestEntry !== null &&
+          !testOne.multiTestCaseAt(multiTestEntry)
+        ) {
+          Logger.logErrorSpinner(
+            Exception.testFileNotFound(fileName, multiTestIndex),
+          );
           return;
-        } else if (multiTestEntry !== null && testOne.multiTestCaseAt(multiTestEntry)) {
+        } else if (
+          multiTestEntry !== null &&
+          testOne.multiTestCaseAt(multiTestEntry)
+        ) {
           const multiTestCase = testOne.multiTestCaseAt(multiTestEntry);
           testOne = {
             input: multiTestCase.input,
             output: multiTestCase.output,
-            fileName: testOne.fileName
-          }
+            fileName: testOne.fileName,
+          };
         }
         compiler = new Compiler({ filePath: filePath });
       } catch (e) {
         Logger.logErrorSpinner(e.message);
+        return;
+      }
+
+      if (options.view) {
+        Logger.logInfoSpinner("Lisiting testcases");
+        if (testEntry === null) {
+          for (const test of Object.values(testcases)) {
+            viewTestCase(test);
+          }
+        } else {
+          viewTestCase(testOne);
+        }
         return;
       }
 
@@ -121,7 +176,9 @@ const testCommand = (program) => {
         if (!options.interactive && options.debug) {
           await startJudgeWithDebug(testOne, compiler);
         } else {
-          await startJudging(testOne, compiler, { multiTest: multiTestEntry !== null });
+          await startJudging(testOne, compiler, {
+            multiTest: multiTestEntry !== null,
+          });
         }
       }
     });

@@ -1,16 +1,16 @@
-const { Verdict } = require('../test/verdict');
-const { loadConfigFile, getConfig } = require('../config/load_config');
+const { Verdict } = require("../test/verdict");
+const { loadConfigFile, getConfig } = require("../config/load_config");
 const {
   expandArgumentWithPath,
   validateFilePath,
   getFileNameFromPath,
-  getFileExtension
-} = require('./utils');
-const { Exception } = require('../error_handler/error')
-const { supportedLanguages } = require('./library');
-const { spawn, execSync } = require('child_process');
-const { TestCase } = require('../test/testcase');
-const readline = require('readline');
+  getFileExtension,
+} = require("./utils");
+const { Exception } = require("../error_handler/error");
+const { supportedLanguages } = require("./library");
+const { spawn, execSync } = require("child_process");
+const { TestCase } = require("../test/testcase");
+const readline = require("readline");
 const successExitCode = 0;
 
 class Compiler {
@@ -28,7 +28,7 @@ class Compiler {
     const buildCmd = debug ? this.debug : this.build;
     if (buildCmd && buildCmd.length > 0) {
       try {
-        execSync(buildCmd, { stdio: 'inherit' });
+        execSync(buildCmd, { stdio: "inherit" });
       } catch (e) {
         throw Exception.buildFailed(e.message);
       }
@@ -38,16 +38,16 @@ class Compiler {
   // wrap the output for runTest (a helper function)
   #wrapper(output, verdict) {
     return {
-      "output": output,
-      "verdict": verdict
+      output: output,
+      verdict: verdict,
     };
   }
 
   /**
    * run test with the given testcase
-   * 
+   *
    * @param {TestCase} testcase
-   * @param {Object} option, if multiTest is true, 
+   * @param {Object} option, if multiTest is true,
    * it will returns UNKNOWN verdict.
    * @returns {Object} result, returns Verdict in "verdict" and output as "output".
    */
@@ -57,8 +57,8 @@ class Compiler {
       shell: true,
     });
 
-    let output = '';
-    child.stdout.on('data', (data) => {
+    let output = "";
+    child.stdout.on("data", (data) => {
       output += data.toString();
     });
     if (input) {
@@ -69,8 +69,8 @@ class Compiler {
     let exitCode = null;
 
     try {
-      const runPromise = new Promise(resolve => {
-        child.on('close', resolve);
+      const runPromise = new Promise((resolve) => {
+        child.on("close", resolve);
       });
       const timeoutPromise = new Promise((_, reject) => {
         timeoutId = setTimeout(() => {
@@ -78,10 +78,7 @@ class Compiler {
           reject();
         }, this.timeout);
       });
-      exitCode = await Promise.race([
-        runPromise,
-        timeoutPromise
-      ])
+      exitCode = await Promise.race([runPromise, timeoutPromise]);
     } catch (_) {
       return this.#wrapper(output, Verdict.TLE);
     } finally {
@@ -93,11 +90,14 @@ class Compiler {
     if (multiTest) {
       return this.#wrapper(output, Verdict.UNKNOWN);
     }
-    return this.#wrapper(output, TestCase.checkOutput(testcase.output, output) ? Verdict.AC : Verdict.WA);
+    return this.#wrapper(
+      output,
+      TestCase.checkOutput(testcase.output, output) ? Verdict.AC : Verdict.WA,
+    );
   }
 
   runInteractive() {
-    return new Promise(() => {
+    return new Promise((resolve) => {
       const child = spawn(this.run, [], {
         shell: true,
       });
@@ -110,18 +110,19 @@ class Compiler {
       child.stdout.pipe(process.stdout);
       child.stderr.pipe(process.stderr);
 
-      rl.on('line', line => {
-        child.stdin.write(line + '\n');
+      rl.on("line", (line) => {
+        child.stdin.write(line + "\n");
       });
 
-      child.on('exit', () => {
+      child.on("exit", () => {
         rl.close();
+        resolve();
       });
     });
   }
 
   runTestWithDebug(input) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const child = spawn(this.run, [], {
         shell: true,
         timeout: this.timeout,
@@ -133,7 +134,7 @@ class Compiler {
       child.stdout.pipe(process.stdout);
       child.stderr.pipe(process.stderr);
 
-      child.on('exit', () => {
+      child.on("exit", () => {
         resolve();
       });
     });
