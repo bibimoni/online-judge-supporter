@@ -3,7 +3,9 @@
   "version": "0.0.2",
   "description": "A tool to support competitve programmer",
   "main": "src/index.js",
-  "bin": "src/index.js",
+  "bin": {
+    "ojs": "src/index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
