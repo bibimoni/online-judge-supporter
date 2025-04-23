@@ -1,6 +1,6 @@
 {
   "name": "online-judge-supporter",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A tool to support competitve programmer",
   "main": "src/index.js",
   "bin": {
