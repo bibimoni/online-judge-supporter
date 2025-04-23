@@ -42,6 +42,10 @@ class Exception {
   static buildFailed(message) {
     return new Error(`Build failed: ${message}`);
   }
+
+  static notLoggedIn(site) {
+    return new Error(`${site} hasn't been logged in`)
+  }
 }
 
 module.exports = { Exception };

@@ -1,10 +1,13 @@
 const fs = require("fs-extra");
 const { homedir } = require("os");
 let configName = "online-judge-supporter_config.json";
-let configDir = `${homedir()}/${configName}`;
+let configDirName = "config-online-judge-supporter"
+let configDir = `${homedir()}/${configDirName}/${configName}`;
+let configFolder = `${homedir()}/${configDirName}/`;
 const defaultConfigName = "_default_config.json";
 const { dirname } = require("path");
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
+const { CookieJar } = require('tough-cookie');
 
 let config = JSON.parse(fs.readFileSync(defaultConfigDir, "utf8")); // init as default
 const mode = 0o2775;
@@ -20,15 +23,12 @@ const testcaseStartIndex = 1;
  *  so this function should be invoked everytime the config changed
  */
 const loadConfigFile = () => {
+  fs.ensureDirSync(configFolder);
   // check if the config exists, if not, clone the default config to it
   if (!fs.existsSync(configDir)) {
     fs.copySync(defaultConfigDir, configDir);
   }
   const jsonPlain = fs.readFileSync(configDir, "utf-8");
-  // const jsonPlain = jsonPlain.slice(
-  //   content.indexOf("{") + 1,
-  //   content.lastIndexOf("}"),
-  // );
   // only apply config with the config is a valid string
   try {
     let o = JSON.parse(jsonPlain);
@@ -45,6 +45,46 @@ const getConfig = () => {
   return config;
 };
 
+const saveCookie = (site, cookies) => {
+  fs.ensureDirSync(configFolder);
+  const jar = new CookieJar();
+
+  cookies.forEach(ck => {
+    let str = `${ck.name}=${ck.value}; Domain=${ck.domain}; Path=${ck.path}`;
+    if (typeof ck.expires === 'number' && ck.expires > 0) {
+      const date = new Date(ck.expires * 1000).toUTCString();
+      str += `; Expires=${date}`;
+    }
+    if (ck.secure)   str += `; Secure`;
+    if (ck.httpOnly) str += `; HttpOnly`;
+
+    jar.setCookieSync(str, `https://${ck.domain}`);
+  });
+  const serialized = jar.serializeSync();
+  const cookieFilePath = `${configFolder}${site}.json`;
+  fs.writeFileSync(cookieFilePath, JSON.stringify(serialized, null, 2), 'utf-8');
+}
+
+const loadCookie = (site) => {
+  const cookieFilePath = `${configFolder}${site}.json`;
+  try {
+    const text = fs.readFileSync(cookieFilePath, 'utf-8');
+    const cookies = JSON.parse(text);
+    return cookies;
+  } catch (err) {
+    throw err;
+  }
+}
+
+const loadCookieJar = (site) => {
+  try {
+    const savedCookies = loadCookie(site);
+    return CookieJar.fromJSON(savedCookies);
+  } catch (err) {
+    throw err;
+  }
+}
+
 module.exports = {
   mode,
   multiTestFolderPrefix,
@@ -55,4 +95,6 @@ module.exports = {
   getConfig,
   loadConfigFile,
   testcaseStartIndex,
+  saveCookie,
+  loadCookieJar,
 };

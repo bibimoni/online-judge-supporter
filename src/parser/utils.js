@@ -1,4 +1,4 @@
-const wrapper = (responseStatus, testcase) => {
+const wrapperRes = (responseStatus, testcase) => {
   if (testcase == undefined) {
     return {
       "status": responseStatus
@@ -10,4 +10,4 @@ const wrapper = (responseStatus, testcase) => {
   };
 };
 
-module.exports = { wrapper };
+module.exports = { wrapperRes };

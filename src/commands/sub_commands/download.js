@@ -32,10 +32,13 @@ const downloadCommand = (program) => {
           onFileCreate: Logger.logFileSpinner,
           onFolderCreate: Logger.logFolderSpinner,
         });
-      } catch (_) {
-        Logger.logErrorSpinner(Exception.unsupportedUrl(url).message, {
+      } catch (err) {
+        Logger.logErrorSpinner(err.message, {
           spinner: spinner,
         });
+        // Logger.logErrorSpinner(Exception.unsupportedUrl(url).message, {
+        //   spinner: spinner,
+        // });
       }
     });
 };

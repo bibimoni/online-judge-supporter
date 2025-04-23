@@ -2,6 +2,8 @@ const { Atcoder } = require("./atcoder");
 const { Codeforces } = require("./codeforces");
 const { wrapper } = require("./utils.js");
 const { Exception } = require("../error_handler/error");
+const { login } = require('./fetcher');
+const { saveCookie } = require('../config/load_config.js');
 const SUCCESS = 200;
 
 class Crawler {
@@ -38,6 +40,25 @@ class Crawler {
       }
     }
     return new Promise.reject(Exception.unsupportedUrl(url));
+  }
+
+  /**
+   * login to a site by open browser and login
+   * @param {String} url can be site baseUrl or site loginUrl
+   */
+  async login(url) {
+    for (const site of this.map.values()) {
+      if (url.startsWith(site.baseUrl) && site.loginUrl) {
+        try {
+          const cookies = await login(site.loginUrl);
+          saveCookie(site.name, cookies);
+        } catch(err) {
+          throw err;
+        }
+        return;
+      }
+    }
+    throw Exception.unsupportedUrl(url);
   }
 
   /**
