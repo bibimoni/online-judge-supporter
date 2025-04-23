@@ -2,8 +2,8 @@ const fs = require("fs-extra");
 const { homedir } = require("os");
 let configName = "online-judge-supporter_config.json";
 let configDirName = "config-online-judge-supporter"
-let configDir = `${homedir()}/${configDirName}/${configName}`;
-let configFolder = `${homedir()}/${configDirName}/`;
+let configDir = `${homedir()}/${configName}`;
+let configFolder = `${homedir()}/.local/${configDirName}/`;
 const defaultConfigName = "_default_config.json";
 const { dirname } = require("path");
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
@@ -23,7 +23,6 @@ const testcaseStartIndex = 1;
  *  so this function should be invoked everytime the config changed
  */
 const loadConfigFile = () => {
-  fs.ensureDirSync(configFolder);
   // check if the config exists, if not, clone the default config to it
   if (!fs.existsSync(configDir)) {
     fs.copySync(defaultConfigDir, configDir);
@@ -32,7 +31,9 @@ const loadConfigFile = () => {
   // only apply config with the config is a valid string
   try {
     let o = JSON.parse(jsonPlain);
-    if (o && typeof o == "object") {
+    if (o && typeof Array.isArray(o)) {
+      config = o[0];
+    } else if (o && typeof o == "object") {
       config = o;
     }
   } catch { }
@@ -55,7 +56,7 @@ const saveCookie = (site, cookies) => {
       const date = new Date(ck.expires * 1000).toUTCString();
       str += `; Expires=${date}`;
     }
-    if (ck.secure)   str += `; Secure`;
+    if (ck.secure) str += `; Secure`;
     if (ck.httpOnly) str += `; HttpOnly`;
 
     jar.setCookieSync(str, `https://${ck.domain}`);

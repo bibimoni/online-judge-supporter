@@ -84,10 +84,9 @@ class Atcoder {
   }
 
   async getHtmlWithLogin(url) {
-    const testUrl = 'https://atcoder.jp/contests/agc001/tasks/agc001_a';
     let res;
     try {
-      res = await isLoggedIn(this.name, testUrl);
+      res = await isLoggedIn(this.name, url);
     } catch(err) {
       throw Exception.notLoggedIn(this.baseUrl);      
     }
