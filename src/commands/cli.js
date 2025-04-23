@@ -11,6 +11,7 @@ const setupCli = () => {
     .name("online-judge-supporter")
     .description("CLI that supports competitve programming on online judges")
     .version(version)
+    .alias('ojs')
     .configureOutput({
       writeOut: (str) => Logger.logInfoSpinner(str),
       writeErr: (str) => Logger.logErrorSpinner(str),
