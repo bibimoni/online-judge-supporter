@@ -37,5 +37,9 @@
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-real-browser": "^1.4.2",
     "tough-cookie": "^5.1.2"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "np": "^10.2.0"
   }
 }
