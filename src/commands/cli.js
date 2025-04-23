@@ -3,6 +3,7 @@ const program = new Command();
 const { downloadCommand } = require("./sub_commands/download");
 const { testCommand } = require("./sub_commands/test");
 const { loginCommand } = require("./sub_commands/login");
+const { infoCommand } = require("./sub_commands/info");
 const version = require("../../package.json").version;
 const { Logger } = require("./logger");
 
@@ -18,6 +19,7 @@ const setupCli = () => {
     });
   Logger.logDefaultSpinner();
 
+  infoCommand(program);
   downloadCommand(program);
   testCommand(program);
   loginCommand(program);

@@ -8,6 +8,7 @@ const defaultConfigName = "_default_config.json";
 const { dirname } = require("path");
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
 const { CookieJar } = require('tough-cookie');
+const { Logger } = require('../commands/logger');
 
 let config = JSON.parse(fs.readFileSync(defaultConfigDir, "utf8")); // init as default
 const mode = 0o2775;
@@ -98,4 +99,6 @@ module.exports = {
   testcaseStartIndex,
   saveCookie,
   loadCookieJar,
+  configFolder,
+  configDir,
 };
