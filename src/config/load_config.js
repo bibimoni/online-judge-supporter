@@ -8,7 +8,6 @@ const defaultConfigName = "_default_config.json";
 const { dirname } = require("path");
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
 const { CookieJar } = require('tough-cookie');
-const { Logger } = require('../commands/logger');
 
 let config = JSON.parse(fs.readFileSync(defaultConfigDir, "utf8")); // init as default
 const mode = 0o2775;
@@ -32,7 +31,7 @@ const loadConfigFile = () => {
   // only apply config with the config is a valid string
   try {
     let o = JSON.parse(jsonPlain);
-    if (o && typeof Array.isArray(o)) {
+    if (o && Array.isArray(o)) {
       config = o[0];
     } else if (o && typeof o == "object") {
       config = o;

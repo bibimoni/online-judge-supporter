@@ -101,6 +101,13 @@ const isLoggedIn = async (siteName, testUrl) => {
   }
 }
 
+/**
+ * getHtml with axios using cookie
+ * 
+ * @param {String} url 
+ * @param {CookieJar} jar 
+ * @returns Axios Responses
+ */
 const getHtmlDataWithCookieJar = (url, jar) => {
   return new Promise((resolve, reject) => {
     wrapper(axios.create({

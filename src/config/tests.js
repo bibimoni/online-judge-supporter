@@ -1,7 +1,11 @@
-const { loadConfigFile } = require('./load_config');
+const { loadConfigFile, getConfig } = require('./load_config');
 
 const test1 = () => {
   loadConfigFile();
 };
 
-module.exports = { test1 };
+const test2 = () => {
+  loadConfigFile();
+  console.log(getConfig());
+}
+test2();
