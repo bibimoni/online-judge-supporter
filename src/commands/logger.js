@@ -63,7 +63,10 @@ class Logger {
   static logFolderSpinner(path, { spinner = createSpinner() } = {}) {
     spinner.info({ text: Logger.logFolder(path), mark: "i" });
   }
-
+  
+  static logInfoSpinner(message) {
+    createSpinner().info({ text: Logger.info(message), mark: 'i' });
+  }
   static logErrorSpinner(message, { spinner = createSpinner() } = {}) {
     spinner.error({ text: Logger.error(message) });
   }
