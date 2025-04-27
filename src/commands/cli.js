@@ -2,6 +2,7 @@ const { Command } = require('commander');
 const program = new Command();
 const { downloadCommand } = require('./sub_commands/download');
 const { testCommand } = require('./sub_commands/test');
+const { createFileCommand } = require('./sub_commands/creator');
 const version = require('../../package.json').version;
 const { Logger } = require('./logger');
 const setupCli = () => {
@@ -14,7 +15,7 @@ const setupCli = () => {
 
   downloadCommand(program);
   testCommand(program);
-
+  createFileCommand(program);
   program.parse(process.argv);
 };
 

@@ -15,43 +15,79 @@ const {
   getDirectoryFromPath
 } = require('../compiler/utils');
 
+let configName = "online-judge-supporter_config.json";
+let configDir = `${homedir()}/${configName}`;
+const defaultConfigName = "_default_config.json";
+const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
+const problem_regex = /((^{[a-z]+-[a-z]+})|(^{[A-Z]+-[A-Z]+})|(^[\w-]+)).([a-z]+)$/;
+
 class Creator {
-  static createContest(default_path, contest_id, number_of_problems, extension_file) {
-    // Check if user has existing folder path
-    if (!fs.existsSync(`${default_path}/${contest_id}`)) {
-      fs.mkdirSync(`${default_path}/${contest_id}`);
-    }
-    loadConfigFile();
-    let config = getConfig();
-    let config_languages = config["languages"][0][extension_file]["template"];
-
-    // Create the problems with number of problems
-    for (let i = 65; i - 65 < number_of_problems; i++) {
-      // Create a folder for each problem
-      // Check if user has existing template files path
-      if (config_languages === "") {
-        fs.writeFileSync(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
-      } else {
-        fs.copyFileSync(`${config_languages}`, `${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
+	
+  /**
+   *  Creates a folder for the contest or problem based on the provided parameters.
+   * 
+   * @param {String} default_path - The default path where the contest or problem files will be created.
+   * @param {String} contest_id - The unique identifier for the contest.
+   * @param {String} param - A string parameter that specifies the format or details of the contest or problem.
+   */
+  	static createContest(default_path, contest_id, param) {
+		if(!problem_regex.test(param)){
+			throw Exception.InvalidContestFormat(param);
+		}
+		
+		let number_of_problems =  - param.split("-")[0].charCodeAt(1) + 1;
+		let extension_file = param.split(".")[1];
+		
+		if(!fs.existsSync(`${default_path}/${contest_id}`) && false){
+			try {
+        fs.mkdirSync(`${default_path}/${contest_id}`);
+      }catch { 
+        throw Exception.CanNotCreateFolder(`${default_path}/${contest_id}`);
       }
+		}
+		loadConfigFile();
+		let config = getConfig();
+    if(config["extension"][extension_file] === undefined){
+      throw Exception.LanguageNotFound(extension_file);
     }
-    //notify the user that the contest has been created
-    console.log("Contest created successfully");
-  }
-  static createProblem(default_path, problem_id, extension_file) {
-    // Check if user has existing folder path
-    loadConfigFile();
-    let config = getConfig();
-    let config_languages = config["languages"][0][extension_file]["template"];
-
-    if (config_languages === "") {
-      fs.writeFileSync(`${default_path}/${problem_id}.${extension_file}`);
-    } else {
-      fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_id}.${extension_file}`);
+    let config_languages = config["extension"][extension_file]["template"];
+    
+		
+		for(let i = 65; i - 65 < number_of_problems; i++){
+			if(config_languages === ""){
+				fs.writeFileSync(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
+			}else {
+				fs.copyFileSync(`${config_languages}`, `${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
+			}
+		}
+		console.log("Contest created successfully");
+	}
+  /**
+   * Creates a file for a specific problem based on the provided parameters.
+   * @param {String} default_path - The default path where the problem file will be created.
+   * @param {String} param - A string containing the problem name and file extension in the format "problemName.extension".
+   */
+	static createProblem(default_path, param) {
+		if(!problem_regex.test(param)){
+			throw Exception.InvalidFileName(param);
+		}
+		let problem_name = param.split(".")[0];
+		let extension_file = param.split(".")[1];
+		loadConfigFile();
+		let config = getConfig();
+    if(config["extension"][0][extension_file] === undefined){
+      throw Exception.LanguageNotFound(extension_file);
     }
-    console.log("Problem created successfully");
+		let config_languages = config["languages"][extension_file]["template"];
+		if(config_languages === ""){
+      fs.writeFileSync(`${default_path}/${problem_name}.${extension_file}`);
+    }else {
+      fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_name}.${extension_file}`);
+    }
+		console.log("Problem created successfully");
 
-  }
+	}
+
 
   /**
   * generate a folder containing tests from given problemData
