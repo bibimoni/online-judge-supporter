@@ -1,20 +1,19 @@
-const cheerio = require("cheerio");
-const { isLoggedIn, getHtmlDataWithCookieJar } = require("./fetcher");
-const { TestCase } = require("../test/testcase");
-const { ProblemData } = require("../test/problem_data");
-const { loadCookieJar } = require('../config/load_config');
-const { Exception } = require("../error_handler/error");
+import * as cheerio from "cheerio";
+import { getHtmlDataWithCookieJar } from "./fetcher.js";
+import { TestCase } from "../test/testcase.js";
+import { ProblemData } from "../test/problem_data.js";
+import { loadCookieJar } from "../config/load_config.js";
+import { Exception } from "../error_handler/error.js";
 const SUCCESS = 200;
-
 const atcoder_sample_input_regex = /^Sample Input [0-9]+$/;
 const atcoder_sample_output_regex = /^Sample Output [0-9]+$/;
 const atcoder_tl_ml_regex = /\s*Time Limit:\s*([\d.]+)\s*sec\s*\/\s*Memory Limit:\s*(\d+)/;
-
 class Atcoder {
   constructor() {
     this.name = "atcoder";
     this.baseUrl = "https://atcoder.jp";
-    this.loginUrl = "https://atcoder.jp/login"
+    this.homePage = "https://atcoder.jp/home";
+    this.loginUrl = "https://atcoder.jp/login";
   }
   /**
    * create a full url to task (https://atcoder.jp/contests/abc397/tasks/abc397_e)
@@ -25,11 +24,9 @@ class Atcoder {
   convertToUrl(contest_id, task_id) {
     return `https://atcoder.jp/contests/${contest_id}/tasks/${task_id}`;
   }
-
   getProblem(contest_id, task_id) {
     return this.getProblemFromUrl(this.convertToUrl(contest_id, task_id));
   }
-
   /**
    * fetching problem date from url, including testcases
    *
@@ -39,7 +36,6 @@ class Atcoder {
   getProblemFromUrl(url) {
     const call_back = (html) => {
       const $ = cheerio.load(html);
-
       let test_data = new ProblemData();
       let current_test = new TestCase();
       $(".lang-en")
@@ -48,13 +44,13 @@ class Atcoder {
           let name = $(el).find("h3").text();
           if (atcoder_sample_input_regex.test(name)) {
             current_test.input = $(el).find("pre").text();
-          } else if (atcoder_sample_output_regex.test(name)) {
+          }
+          else if (atcoder_sample_output_regex.test(name)) {
             current_test.output = $(el).find("pre").text();
             test_data.addTestCase(current_test);
             current_test = new TestCase();
           }
         });
-
       const tl_ml = $("#task-statement")
         .prev()
         .text()
@@ -62,7 +58,6 @@ class Atcoder {
       const [, timeLimit, memoryLimit] = tl_ml.match(atcoder_tl_ml_regex);
       test_data.timeLimit = parseFloat(timeLimit);
       test_data.memoryLimit = parseInt(memoryLimit);
-
       const name = $("#contest-nav-tabs")
         .next()
         .find("span")
@@ -82,21 +77,20 @@ class Atcoder {
         .catch((err) => reject(err));
     });
   }
-
   async getHtmlWithLogin(url) {
     let res;
     try {
-      res = await isLoggedIn(this.name, url);
-    } catch(err) {
-      throw Exception.notLoggedIn(this.baseUrl);      
-    }
-    if (res.status !== SUCCESS || res.redirected) {
+      res = await getHtmlDataWithCookieJar(this.name, url, this.baseUrl);
+    } catch (err) {
       throw Exception.notLoggedIn(this.baseUrl);
     }
-
-    const jar = loadCookieJar(this.name);
-    return getHtmlDataWithCookieJar(url, jar);
-  }  
+    if (res.status !== SUCCESS) {
+      throw Exception.notLoggedIn(this.baseUrl);
+    }
+    return res.content;
+  }
 }
-
-module.exports = { Atcoder };
+export { Atcoder };
+export default {
+  Atcoder
+};

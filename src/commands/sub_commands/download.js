@@ -1,19 +1,15 @@
-const { createSpinner } = require("nanospinner");
-const { Logger } = require("../logger");
-const { Crawler } = require("../../parser/crawler");
-const { Exception } = require("../../error_handler/error");
-const { Creator } = require("../../file_creator/creator");
+import { createSpinner } from "nanospinner";
+import { Logger } from "../logger.js";
+import { Crawler } from "../../parser/crawler.js";
+import { Exception } from "../../error_handler/error.js";
+import { Creator } from "../../file_creator/creator.js";
 const path = process.cwd();
-
 const downloadCommand = (program) => {
   program
     .command("download")
     .description(`Download testcases from url`)
     .alias("d")
-    .argument(
-      "<url>",
-      `url to the problem page (currently supports atcoder, codeforces)`,
-    )
+    .argument("<url>", `url to the problem page (currently supports atcoder, codeforces)`)
     .argument("[name]", `problem shortname (a, b, c, test, ...)`)
     .action(async (url, name) => {
       let crawler = new Crawler();
@@ -32,15 +28,15 @@ const downloadCommand = (program) => {
           onFileCreate: Logger.logFileSpinner,
           onFolderCreate: Logger.logFolderSpinner,
         });
-      } catch (err) {
+      }
+      catch (err) {
         Logger.logErrorSpinner(err.message, {
           spinner: spinner,
         });
-        // Logger.logErrorSpinner(Exception.unsupportedUrl(url).message, {
-        //   spinner: spinner,
-        // });
       }
     });
 };
-
-module.exports = { downloadCommand };
+export { downloadCommand };
+export default {
+  downloadCommand
+};

@@ -1,15 +1,16 @@
-const { Logger } = require("../logger");
-const { configFolder, configDir } = require('../../config/load_config');
-const chalk = require('chalk');
-
+import { Logger } from "../logger.js";
+import { configFolder, configDir } from "../../config/load_config.js";
+import chalk from "chalk";
 const infoCommand = (program) => {
-  program
-    .command('info')
-    .description(`Show files path`)
-    .action(() => {
-      Logger.logInfoSpinner(`Config file path: ${chalk.cyanBright(configDir)}`);
-      Logger.logInfoSpinner(`Cookies directory ${chalk.cyanBright(configFolder)}`);
+    program
+        .command('info')
+        .description(`Show files path`)
+        .action(() => {
+        Logger.logInfoSpinner(`Config file path: ${chalk.cyanBright(configDir)}`);
+        Logger.logInfoSpinner(`Cookies directory ${chalk.cyanBright(configFolder)}`);
     });
 };
-
-module.exports = { infoCommand };
+export { infoCommand };
+export default {
+    infoCommand
+};

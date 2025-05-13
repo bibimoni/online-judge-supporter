@@ -1,4 +1,3 @@
-#! /usr/bin/env node
-const { setupCli } = require('./commands/cli');
-
+#!/usr/bin/env -S node --no-warnings
+import { setupCli } from "./commands/cli.js";
 setupCli();

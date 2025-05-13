@@ -1,12 +1,12 @@
-const axios = require("axios");
-const puppeteer = require("puppeteer-extra");
-const { wrapperRes } = require("./utils");
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-const { loadCookieJar } = require("../config/load_config");
+import * as axios from "axios";
+import puppeteer from "puppeteer-extra";
+import { wrapperRes } from "./utils.js";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { loadCookieJar } from "../config/load_config.js";
+import { connect } from "puppeteer-real-browser";
+import { Exception } from "../error_handler/error.js";
 const SUCCESS = 200;
 const timeoutDuration = 100 * 1000;
-const { wrapper } = require('axios-cookiejar-support');
-const { connect } = require('puppeteer-real-browser');
 
 puppeteer.use(StealthPlugin());
 
@@ -19,7 +19,6 @@ const getHtmlData = (url) => {
       .catch((err) => reject(wrapperRes(err.response?.status)));
   });
 };
-
 // try to bypass cloudflare, this fetches significantly slower than the axios version
 // only use when the axios version doesn't work.
 const getHtmlDataBypass = async (url) => {
@@ -40,91 +39,103 @@ const getHtmlDataBypass = async (url) => {
           }
           return res.response().status() & acc;
         }, true);
-
       if (request_ok) {
         resolve(html);
-      } else {
+      }
+      else {
         reject(wrapperRes(wrongRequestStatus));
       }
-    } catch (err) {
+    }
+    catch (err) {
       reject(wrapperRes(err.response?.status));
     }
   });
 };
-
-const login = async (loginUrl) => {
+const login = async (loginUrl, homePage) => {
   try {
     const { page, browser } = await connect({
       headless: false,
     });
     await page.goto(loginUrl, { waitUntil: 'networkidle2' });
-    await page.waitForNavigation({timeout: timeoutDuration });
+    const res = await page.waitForNavigation({ timeout: timeoutDuration });
+    if (res.url() !== homePage) {
+      await browser.close();
+      throw Exception.loginFailed(homePage);
+    }
     const cookies = await browser.cookies();
     await browser.close();
     return cookies;
-  } catch (error) {
+  }
+  catch (error) {
     throw error;
   }
-}
-
+};
 /**
- * check if we have cookie for this site
- * @param {String} siteName 
- * @param {String} testUrl check if when open this url, will get redirect or not
- * @returns {Promise<{ status: number, redirected: boolean, location: string|null }>}
+ * getHtml with puppeteer using cookie
+ *
+ * @param {String} url
+ * @param {CookieJar} jar
+ * @returns Axios Responses
  */
-const isLoggedIn = async (siteName, testUrl) => {
+const getHtmlDataWithCookieJar = async (siteName, testUrl, cookieUrl) => {
   let jar;
   try {
     jar = loadCookieJar(siteName);
-  } catch (err) {
+  }
+  catch (err) {
     throw err;
   }
-  const client = wrapper(axios.create({
-    maxRedirects: 0,
-    jar,
-    withCredentials: true
-  }));
 
-  try {
-    const res = await client.get(testUrl);
-    return { status: res.status, redirected: false, location: null };
-  } catch(err) {
-    if (err.response && err.response.status >= 300 && err.response.status < 400) {
-      return {
-        status: err.response.status,
-        redirected: true,
-        location: err.response.headers.location || null
-      };
+  return new Promise(async (resolve, reject) => {
+    try {
+      let browser = await puppeteer.launch({ headless: true });
+      const toughCookies = await jar.getCookies(cookieUrl);
+      const ppCookies = toughCookies.map(c => ({
+        name: c.key,
+        value: c.value,
+        domain: c.domain,
+        path: c.path,
+        expires: c.expires instanceof Date ? c.expires.getTime() / 1000 : -1,
+        httpOnly: c.httpOnly,
+        secure: c.secure,
+        sameSite: c.sameSite === 'strict' ? 'Strict' : 'Lax'
+      }));
+      // Sets cookie in the default context
+      const page = await browser.newPage();
+      await page.setCookie(...ppCookies);
+      const response = await page.goto(testUrl, { waitUntil: "networkidle2" });
+      const html = await page.content();
+      await browser.close();
+      let wrongRequestStatus;
+      let request_ok = response
+        .request()
+        .redirectChain()
+        .reduce((acc, res) => {
+          if (res.response().status() != SUCCESS) {
+            wrongRequestStatus = res.response().status();
+          }
+          return res.response().status() & acc;
+        }, true);
+      if (request_ok) {
+        resolve({ status: SUCCESS, content: html });
+      }
+      else {
+        reject(wrapperRes(wrongRequestStatus));
+      }
     }
-    throw err;
-  }
-}
-
-/**
- * getHtml with axios using cookie
- * 
- * @param {String} url 
- * @param {CookieJar} jar 
- * @returns Axios Responses
- */
-const getHtmlDataWithCookieJar = (url, jar) => {
-  return new Promise((resolve, reject) => {
-    wrapper(axios.create({
-      maxRedirects: 0,
-      jar,
-      withCredentials: true
-    }))
-      .get(url)
-      .then(({ data }) => resolve(data))
-      .catch((err) => reject(wrapperRes(err.response?.status)));
+    catch (err) {
+      reject(wrapperRes(err.response?.status));
+    }
   });
-}
+};
 
-module.exports = { 
-  getHtmlData, 
-  getHtmlDataBypass, 
-  login, 
-  isLoggedIn,
+export { getHtmlData };
+export { getHtmlDataBypass };
+export { login };
+export { getHtmlDataWithCookieJar };
+export default {
+  getHtmlData,
+  getHtmlDataBypass,
+  login,
   getHtmlDataWithCookieJar
 };

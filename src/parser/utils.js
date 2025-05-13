@@ -9,5 +9,7 @@ const wrapperRes = (responseStatus, testcase) => {
     "testcase": testcase
   };
 };
-
-module.exports = { wrapperRes };
+export { wrapperRes };
+export default {
+  wrapperRes
+};

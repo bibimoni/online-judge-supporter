@@ -1,11 +1,11 @@
-const { Atcoder } = require("./atcoder");
-const { Codeforces } = require("./codeforces");
-const { wrapper } = require("./utils.js");
-const { Exception } = require("../error_handler/error");
-const { login } = require('./fetcher');
-const { saveCookie } = require('../config/load_config.js');
+import { Atcoder } from "./atcoder.js";
+import { Codeforces } from "./codeforces.js";
+import utils from "./utils.js";
+import { Exception } from "../error_handler/error.js";
+import { login } from "./fetcher.js";
+import { saveCookie } from "../config/load_config.js";
+const { wrapper } = utils;
 const SUCCESS = 200;
-
 class Crawler {
   constructor() {
     /**
@@ -26,7 +26,6 @@ class Crawler {
     const match = name.match(/([a-zA-Z0-9])+/);
     return (match ? match[0] : "").toLowerCase();
   }
-
   /**
    * get problem data with url
    *
@@ -41,18 +40,18 @@ class Crawler {
     }
     return new Promise.reject(Exception.unsupportedUrl(url));
   }
-
   /**
    * login to a site by open browser and login
    * @param {String} url can be site baseUrl or site loginUrl
    */
   async login(url) {
     for (const site of this.map.values()) {
-      if (url.startsWith(site.baseUrl) && site.loginUrl) {
+      if (url.startsWith(site.baseUrl) && site.loginUrl && site.homePage) {
         try {
-          const cookies = await login(site.loginUrl);
+          const cookies = await login(site.loginUrl, site.homePage);
           saveCookie(site.name, cookies);
-        } catch(err) {
+        }
+        catch (err) {
           throw err;
         }
         return;
@@ -60,7 +59,6 @@ class Crawler {
     }
     throw Exception.unsupportedUrl(url);
   }
-
   /**
    * register crawler
    * @param {Site} site, a class containing the crawler from a site
@@ -68,7 +66,6 @@ class Crawler {
   addSite(site) {
     this.map.set(site.name, site);
   }
-
   /**
    * @param {String} site
    * @param {String} contest_id
@@ -85,5 +82,7 @@ class Crawler {
     });
   }
 }
-
-module.exports = { Crawler };
+export { Crawler };
+export default {
+  Crawler
+};

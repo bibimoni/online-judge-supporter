@@ -2,11 +2,13 @@
  * define a set of supported languages by theirs extensions
   */
 const supportedLanguages = [
-  "c",
-  "cpp",
-  "py",
-  "java",
-  "rs"
+    "c",
+    "cpp",
+    "py",
+    "java",
+    "rs"
 ];
-
-module.exports = { supportedLanguages };
+export { supportedLanguages };
+export default {
+    supportedLanguages
+};
