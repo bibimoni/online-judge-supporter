@@ -46,9 +46,9 @@ class Crawler {
    */
   async login(url) {
     for (const site of this.map.values()) {
-      if (url.startsWith(site.baseUrl) && site.loginUrl) {
+      if (url.startsWith(site.baseUrl) && site.loginUrl && site.homePage) {
         try {
-          const cookies = await login(site.loginUrl, site.baseUrl);
+          const cookies = await login(site.loginUrl, site.homePage);
           saveCookie(site.name, cookies);
         }
         catch (err) {

@@ -12,6 +12,7 @@ class Atcoder {
   constructor() {
     this.name = "atcoder";
     this.baseUrl = "https://atcoder.jp";
+    this.homePage = "https://atcoder.jp/home";
     this.loginUrl = "https://atcoder.jp/login";
   }
   /**
@@ -83,8 +84,7 @@ class Atcoder {
     } catch (err) {
       throw Exception.notLoggedIn(this.baseUrl);
     }
-    console.log(res);
-    if (res.status !== SUCCESS || res.redirected) {
+    if (res.status !== SUCCESS) {
       throw Exception.notLoggedIn(this.baseUrl);
     }
     return res.content;

@@ -88,7 +88,7 @@ const getHtmlDataWithCookieJar = async (siteName, testUrl, cookieUrl) => {
 
   return new Promise(async (resolve, reject) => {
     try {
-      let browser = await puppeteer.launch({ headless: false });
+      let browser = await puppeteer.launch({ headless: true });
       const toughCookies = await jar.getCookies(cookieUrl);
       const ppCookies = toughCookies.map(c => ({
         name: c.key,
@@ -117,7 +117,7 @@ const getHtmlDataWithCookieJar = async (siteName, testUrl, cookieUrl) => {
           return res.response().status() & acc;
         }, true);
       if (request_ok) {
-        resolve({ status: res.status, content: html });
+        resolve({ status: SUCCESS, content: html });
       }
       else {
         reject(wrapperRes(wrongRequestStatus));
