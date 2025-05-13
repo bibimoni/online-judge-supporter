@@ -25,7 +25,7 @@ const getHtmlData = (url) => {
 const getHtmlDataBypass = async (url) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const browser = await puppeteer.launch({ headless: "new" });
+      const browser = await puppeteer.launch({ headless: false });
       const page = await browser.newPage();
       const response = await page.goto(url, { waitUntil: "networkidle2" });
       const html = await page.content();
