@@ -5,7 +5,11 @@ let configDirName = "config-online-judge-supporter"
 let configDir = `${homedir()}/${configName}`;
 let configFolder = `${homedir()}/.local/${configDirName}/`;
 const defaultConfigName = "_default_config.json";
-const { dirname } = require("path");
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
 const { CookieJar } = require('tough-cookie');
 

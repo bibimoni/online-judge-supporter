@@ -2,14 +2,15 @@
   "name": "online-judge-supporter",
   "version": "0.0.5",
   "description": "A tool to support competitve programmer",
-  "main": "src/index.js",
+  "main": "esm/index.js",
   "bin": {
-    "ojs": "src/index.js",
-    "online-judge-supporter": "src/index.js"
+    "ojs": "esm/index.js",
+    "online-judge-supporter": "esm/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bibimoni/online-judge-supporter.git"
