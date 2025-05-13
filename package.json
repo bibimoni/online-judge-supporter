@@ -1,6 +1,6 @@
 {
   "name": "online-judge-supporter",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A tool to support competitve programmer",
   "main": "esm/index.js",
   "bin": {
