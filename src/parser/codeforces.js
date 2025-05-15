@@ -7,6 +7,8 @@ class Codeforces {
   constructor() {
     this.name = "codeforces";
     this.baseUrl = "https://codeforces.com";
+    this.homeUrl = "https://codeforces.com"
+    this.loginUrl = "https://codeforces.com/login"
   }
   /**
    * create a full url to task (https://codeforces.com/contest/2075/problem/A)
