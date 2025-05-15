@@ -43,11 +43,12 @@ class Creator {
 		let number_of_problems =  - param.split("-")[0].charCodeAt(1) + 1;
 		let extension_file = param.split(".")[1];
 		
-		if(!fs.existsSync(`${default_path}/${contest_id}`) && false){
+		if(!fs.existsSync(`${default_path}/${contest_id}`)){
 			try {
         fs.mkdirSync(`${default_path}/${contest_id}`);
       }catch { 
         throw Exception.CanNotCreateFolder(`${default_path}/${contest_id}`);
+        
       }
 		}
 		loadConfigFile();
@@ -65,7 +66,7 @@ class Creator {
 				fs.copyFileSync(`${config_languages}`, `${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
 			}
 		}
-		console.log("Contest created successfully");
+		return true;
 	}
   /**
    * Creates a file for a specific problem based on the provided parameters.
@@ -89,8 +90,7 @@ class Creator {
     }else {
       fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_name}.${extension_file}`);
     }
-		console.log("Problem created successfully");
-
+    return true;
 	}
 
 

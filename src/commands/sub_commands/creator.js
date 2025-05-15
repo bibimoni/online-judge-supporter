@@ -14,12 +14,9 @@ const createFileCommand = (program) =>  {
         if(options.contest !== undefined){
           result = Creator.createContest(path, options.contest, file_name);
           if(result === true)Logger.logSuccessSpinner(`Contest ${options.contest} created successfully`);
-          else Logger.logErrorSpinner(`${result}`);
-          return ;
         }
         result = Creator.createProblem(path, file_name);
         if(result === true) Logger.logSuccessSpinner(`File ${file_name} created successfully`);
-        else Logger.logErrorSpinner(result);
       }catch (error) {
         Logger.logErrorSpinner(error.message);
       }
