@@ -3,10 +3,8 @@ import puppeteer from "puppeteer-extra";
 import { wrapperRes } from "./utils.js";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { loadCookieJar } from "../config/load_config.js";
-import { connect } from "puppeteer-real-browser";
-import { Exception } from "../error_handler/error.js";
+
 const SUCCESS = 200;
-const timeoutDuration = 100 * 1000;
 
 puppeteer.use(StealthPlugin());
 

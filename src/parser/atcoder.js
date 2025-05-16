@@ -7,8 +7,8 @@ import { connect } from "puppeteer-real-browser";
 import { timeoutDuration } from "../config/load_config.js";
 
 const SUCCESS = 200;
-const atcoder_sample_input_regex = /^Sample Input [0-9]+$/;
-const atcoder_sample_output_regex = /^Sample Output [0-9]+$/;
+const atcoder_sample_input_regex = /^Sample Input [0-9]+/;
+const atcoder_sample_output_regex = /^Sample Output [0-9]+/;
 const atcoder_tl_ml_regex = /\s*Time Limit:\s*([\d.]+)\s*sec\s*\/\s*Memory Limit:\s*(\d+)/;
 class Atcoder {
   constructor() {
@@ -47,8 +47,7 @@ class Atcoder {
           let name = $(el).find("h3").text();
           if (atcoder_sample_input_regex.test(name)) {
             current_test.input = $(el).find("pre").text();
-          }
-          else if (atcoder_sample_output_regex.test(name)) {
+          } else if (atcoder_sample_output_regex.test(name)) {
             current_test.output = $(el).find("pre").text();
             test_data.addTestCase(current_test);
             current_test = new TestCase();
