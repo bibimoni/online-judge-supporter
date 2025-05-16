@@ -12,6 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
 
+
 const { CookieJar } = toughCookie;
 let config = JSON.parse(fs.readFileSync(defaultConfigDir, "utf8")); // init as default
 const mode = 0o2775;
@@ -21,6 +22,8 @@ const inputPrefixTestName = "in";
 const outputPrefixTestName = "out";
 const testFolderPrefix = "__test_";
 const testcaseStartIndex = 1;
+const timeoutDuration = 100 * 1000; // login timeout duration (for each window)
+
 /**
  *  the user may be able to change the config without exiting the program
  *  so this function should be invoked everytime the config changed
@@ -101,6 +104,7 @@ export { saveCookie };
 export { loadCookieJar };
 export { configFolder };
 export { configDir };
+export { timeoutDuration };
 export default {
   mode,
   multiTestFolderPrefix,
@@ -114,5 +118,6 @@ export default {
   saveCookie,
   loadCookieJar,
   configFolder,
-  configDir
+  configDir,
+  timeoutDuration
 };

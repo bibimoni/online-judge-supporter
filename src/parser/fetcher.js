@@ -51,25 +51,6 @@ const getHtmlDataBypass = async (url) => {
     }
   });
 };
-const login = async (loginUrl, homePage) => {
-  try {
-    const { page, browser } = await connect({
-      headless: false,
-    });
-    await page.goto(loginUrl, { waitUntil: 'networkidle2' });
-    const res = await page.waitForNavigation({ timeout: timeoutDuration });
-    if (res.url() !== homePage) {
-      await browser.close();
-      throw Exception.loginFailed(homePage);
-    }
-    const cookies = await browser.cookies();
-    await browser.close();
-    return cookies;
-  }
-  catch (error) {
-    throw error;
-  }
-};
 /**
  * getHtml with puppeteer using cookie
  *
@@ -131,11 +112,9 @@ const getHtmlDataWithCookieJar = async (siteName, testUrl, cookieUrl) => {
 
 export { getHtmlData };
 export { getHtmlDataBypass };
-export { login };
 export { getHtmlDataWithCookieJar };
 export default {
   getHtmlData,
   getHtmlDataBypass,
-  login,
   getHtmlDataWithCookieJar
 };

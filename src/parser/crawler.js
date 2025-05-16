@@ -2,7 +2,6 @@ import { Atcoder } from "./atcoder.js";
 import { Codeforces } from "./codeforces.js";
 import utils from "./utils.js";
 import { Exception } from "../error_handler/error.js";
-import { login } from "./fetcher.js";
 import { saveCookie } from "../config/load_config.js";
 const { wrapper } = utils;
 const SUCCESS = 200;
@@ -46,9 +45,9 @@ class Crawler {
    */
   async login(url) {
     for (const site of this.map.values()) {
-      if (url.startsWith(site.baseUrl) && site.loginUrl && site.homePage) {
+      if ((site.loginUrl.startsWith(url) || site.name.startsWith(url)) && typeof site.login === 'function') {
         try {
-          const cookies = await login(site.loginUrl, site.homePage);
+          const cookies = await site.login();
           saveCookie(site.name, cookies);
         }
         catch (err) {

@@ -2,8 +2,10 @@ import * as cheerio from "cheerio";
 import { getHtmlDataWithCookieJar } from "./fetcher.js";
 import { TestCase } from "../test/testcase.js";
 import { ProblemData } from "../test/problem_data.js";
-import { loadCookieJar } from "../config/load_config.js";
 import { Exception } from "../error_handler/error.js";
+import { connect } from "puppeteer-real-browser";
+import { timeoutDuration } from "../config/load_config.js";
+
 const SUCCESS = 200;
 const atcoder_sample_input_regex = /^Sample Input [0-9]+$/;
 const atcoder_sample_output_regex = /^Sample Output [0-9]+$/;
@@ -14,6 +16,7 @@ class Atcoder {
     this.baseUrl = "https://atcoder.jp";
     this.homePage = "https://atcoder.jp/home";
     this.loginUrl = "https://atcoder.jp/login";
+    this.submitLoginButton = "#submit"; // submit button's id
   }
   /**
    * create a full url to task (https://atcoder.jp/contests/abc397/tasks/abc397_e)
@@ -88,6 +91,31 @@ class Atcoder {
       throw Exception.notLoggedIn(this.baseUrl);
     }
     return res.content;
+  }
+  async login() {
+    try {
+      const { page, browser } = await connect({
+        headless: false,
+      });
+      let res;
+      try {
+        await page.goto(this.loginUrl, { waitUntil: 'networkidle2' });
+        res = await page.waitForNavigation({ timeout: timeoutDuration });
+      } catch (err) {
+        browser.close();
+        throw err;
+      }
+      if (res.url() !== this.homePage) {
+        await browser.close();
+        throw Exception.loginFailed(this.homePage);
+      }
+      const cookies = await browser.cookies();
+      await browser.close();
+      return cookies;
+    }
+    catch (error) {
+      throw error;
+    }
   }
 }
 export { Atcoder };

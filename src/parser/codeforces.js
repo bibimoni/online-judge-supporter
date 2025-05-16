@@ -2,13 +2,18 @@ import * as cheerio from "cheerio";
 import { getHtmlDataBypass } from "./fetcher.js";
 import { TestCase } from "../test/testcase.js";
 import { ProblemData } from "../test/problem_data.js";
+import { connect } from "puppeteer-real-browser";
+import { Exception } from "../error_handler/error.js";
+import { timeoutDuration } from "../config/load_config.js";
 const codeforces_tl_ml_regex = /(\d+\.\d+|\d+)/;
+
 class Codeforces {
   constructor() {
     this.name = "codeforces";
     this.baseUrl = "https://codeforces.com";
-    this.homeUrl = "https://codeforces.com"
-    this.loginUrl = "https://codeforces.com/login"
+    this.homePage = "https://codeforces.com/";
+    this.loginUrl = "https://codeforces.com/enter";
+    this.submitLoginButton = ".submit"; // class name of the submit button
   }
   /**
    * create a full url to task (https://codeforces.com/contest/2075/problem/A)
@@ -93,6 +98,34 @@ class Codeforces {
         })
         .catch(err => reject(err));
     });
+  }
+
+  async login() {
+    try {
+      const { page, browser } = await connect({
+        headless: false,
+      });
+      let res;
+      try {
+        await page.goto(this.loginUrl, { waitUntil: 'networkidle2' });
+        await page.waitForNavigation({ timeout: timeoutDuration }); // move out of Cloudflare
+        await page.waitForNavigation({ timeout: timeoutDuration }); // wait... checkforbrowser
+        await page.waitForSelector(this.submitLoginButton, { timeout: timeoutDuration });
+        res = await page.waitForNavigation({ timeout: timeoutDuration });
+      } catch (err) {
+        throw err;
+      }
+      if (res.url() !== this.homePage) {
+        await browser.close();
+        throw Exception.loginFailed(this.homePage);
+      }
+      const cookies = await browser.cookies();
+      await browser.close();
+      return cookies;
+    }
+    catch (error) {
+      throw error;
+    }
   }
 }
 export { Codeforces };
