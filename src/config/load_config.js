@@ -4,7 +4,7 @@ import * as toughCookie from "tough-cookie";
 let configName = "online-judge-supporter_config.json";
 let configDirName = "config-online-judge-supporter";
 let configDir = `${homedir()}/${configName}`;
-let configFolder = `${homedir()}/.local/${configDirName}/`;
+let configFolder = `${homedir()}/.local/share/${configDirName}/`;
 const defaultConfigName = "_default_config.json";
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
