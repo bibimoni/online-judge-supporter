@@ -1,5 +1,5 @@
 const { Creator } = require('./creator');
 const creator = new Creator();
 
-//creator.createContest("C:/Users/huyhuyne", "abc398", 3, "cpp");
-creator.checkConfig();
+Creator.createContest("/Users/quochuytran/Downloads", "abc398", "a-c.cpp");
+//creator.checkConfig();
