@@ -22,7 +22,7 @@ const inputPrefixTestName = "in";
 const outputPrefixTestName = "out";
 const testFolderPrefix = "__test_";
 const testcaseStartIndex = 1;
-const timeoutDuration = 100 * 1000; // login timeout duration (for each window)
+const timeoutDuration = 10000 * 1000; // login timeout duration (for each window)
 
 /**
  *  the user may be able to change the config without exiting the program

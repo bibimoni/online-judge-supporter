@@ -38,6 +38,9 @@ class Exception {
   static loginFailed(site) {
     return new Error(`Failed to login into ${site}`);
   }
+  static canNotFetchData(site) {
+    return new Error(`Failed to fetch from ${site}`);
+  }
 }
 export { Exception };
 export default {

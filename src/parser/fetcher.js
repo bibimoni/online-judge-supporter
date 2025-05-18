@@ -1,8 +1,8 @@
-import * as axios from "axios";
+import axios from "axios";
 import puppeteer from "puppeteer-extra";
-import { wrapperRes } from "./utils.js";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import { loadCookieJar } from "../config/load_config.js";
+import { loadCookieJar, timeoutDuration } from "../config/load_config.js";
+import { Exception } from "../error_handler/error.js";
 
 const SUCCESS = 200;
 
@@ -14,7 +14,7 @@ const getHtmlData = (url) => {
     axios
       .get(url)
       .then(({ data }) => resolve(data))
-      .catch((err) => reject(wrapperRes(err.response?.status)));
+      .catch((err) => reject(err));
   });
 };
 // try to bypass cloudflare, this fetches significantly slower than the axios version
@@ -24,7 +24,7 @@ const getHtmlDataBypass = async (url) => {
     try {
       const browser = await puppeteer.launch({ headless: false });
       const page = await browser.newPage();
-      const response = await page.goto(url, { waitUntil: "networkidle2" });
+      const response = await page.goto(url, { waitUntil: "networkidle2", timeout: timeoutDuration });
       const html = await page.content();
       await browser.close();
       let wrongRequestStatus;
@@ -41,11 +41,11 @@ const getHtmlDataBypass = async (url) => {
         resolve(html);
       }
       else {
-        reject(wrapperRes(wrongRequestStatus));
+        reject(Exception.canNotFetchData(url));
       }
     }
     catch (err) {
-      reject(wrapperRes(err.response?.status));
+      reject(err);
     }
   });
 };
@@ -67,7 +67,7 @@ const getHtmlDataWithCookieJar = async (siteName, testUrl, cookieUrl) => {
 
   return new Promise(async (resolve, reject) => {
     try {
-      let browser = await puppeteer.launch({ headless: true });
+      let browser = await puppeteer.launch({ headless: false });
       const toughCookies = await jar.getCookies(cookieUrl);
       const ppCookies = toughCookies.map(c => ({
         name: c.key,
@@ -99,11 +99,11 @@ const getHtmlDataWithCookieJar = async (siteName, testUrl, cookieUrl) => {
         resolve({ status: SUCCESS, content: html });
       }
       else {
-        reject(wrapperRes(wrongRequestStatus));
+        reject(Exception.canNotFetchData(testUrl));
       }
     }
     catch (err) {
-      reject(wrapperRes(err.response?.status));
+      reject(err);
     }
   });
 };

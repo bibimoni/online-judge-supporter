@@ -1,7 +1,6 @@
 import { createSpinner } from "nanospinner";
 import { Logger } from "../logger.js";
 import { Crawler } from "../../parser/crawler.js";
-import { Exception } from "../../error_handler/error.js";
 import { Creator } from "../../file_creator/creator.js";
 const path = process.cwd();
 const downloadCommand = (program) => {
