@@ -1,10 +1,8 @@
 import { Atcoder } from "./atcoder.js";
 import { Codeforces } from "./codeforces.js";
-import utils from "./utils.js";
 import { Exception } from "../error_handler/error.js";
 import { saveCookie } from "../config/load_config.js";
-const { wrapper } = utils;
-const SUCCESS = 200;
+
 class Crawler {
   constructor() {
     /**
@@ -65,21 +63,21 @@ class Crawler {
   addSite(site) {
     this.map.set(site.name, site);
   }
-  /**
-   * @param {String} site
-   * @param {String} contest_id
-   * @param {String} problem_id
-   * @return {Object: { "status", "testcase" }} problem data with testcases and status code
-   */
-  getProblem(site, contest_id, problem_id) {
-    return new Promise((resolve, reject) => {
-      this.map
-        .get(site)
-        .getProblem(contest_id, problem_id)
-        .then((item) => resolve(wrapper(SUCCESS, item)))
-        .catch((err) => reject(err));
-    });
-  }
+  // /**
+  //  * @param {String} site
+  //  * @param {String} contest_id
+  //  * @param {String} problem_id
+  //  * @return {Object: { "status", "testcase" }} problem data with testcases and status code
+  //  */
+  // getProblem(site, contest_id, problem_id) {
+  //   return new Promise((resolve, reject) => {
+  //     this.map
+  //       .get(site)
+  //       .getProblem(contest_id, problem_id)
+  //       .then((item) => resolve(wrapper(SUCCESS, item)))
+  //       .catch((err) => reject(err));
+  //   });
+  // }
 }
 export { Crawler };
 export default {

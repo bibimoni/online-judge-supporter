@@ -1,5 +1,5 @@
-const { Logger } = require('../logger');
-const { Creator } = require('../../file_creator/creator');
+import { Logger } from '../logger.js';
+import { Creator } from '../../file_creator/creator.js';
 const path = process.cwd();
 const createFileCommand = (program) => {
   program
@@ -10,13 +10,13 @@ const createFileCommand = (program) => {
     .option('-c, --contest <contest_id>', 'Create a new file with the given')
     .action((file_name, options) => {
       try {
-        
+
         if (options.contest !== undefined) {
           Creator.createContest(path, options.contest, file_name, { on_file_created: Logger.logFileCreated });
-          
+
         } else {
           Creator.createProblem(path, file_name, { on_file_created: Logger.logFileCreated });
-          
+
         }
       } catch (error) {
         Logger.logErrorSpinner(error.message);
@@ -24,5 +24,7 @@ const createFileCommand = (program) => {
       }
     });
 };
-
-module.exports = { createFileCommand };
+export { createFileCommand };
+export default {
+  createFileCommand
+};
