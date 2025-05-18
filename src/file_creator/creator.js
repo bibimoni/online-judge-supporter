@@ -25,10 +25,10 @@ let configName = "online-judge-supporter_config.json";
 //let configDir = `${homedir()}/${configName}`;
 const defaultConfigName = "_default_config.json";
 //const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
-const problem_regex = /((^{[a-z]+-[a-z]+})|(^{[A-Z]+-[A-Z]+})|(^[\w-]+)).([a-z]+)$/;
+const problem_regex = /((^[a-z]-[a-z])|(^[A-Z]-[A-Z])|(^[\w]+))\.([a-z]+)$/;
 
 class Creator {
-	
+
   /**
    *  Creates a folder for the contest or problem based on the provided parameters.
    * 
@@ -36,65 +36,93 @@ class Creator {
    * @param {String} contest_id - The unique identifier for the contest.
    * @param {String} param - A string parameter that specifies the format or details of the contest or problem.
    */
-  	static createContest(default_path, contest_id, param) {
-      if(!problem_regex.test(param)){
-        return console.log(`Invalid contest format ${param}`)
-        //throw Exception.InvalidContestFormat(param);
+  static createContest(default_path, contest_id, param, { on_file_created = () => { } }) {
+    if (!problem_regex.test(param)) {
+      throw Exception.invalidContestFormat(param);
+    }
+    let extension_file = param.split(".")[1];
+
+    if (!fs.existsSync(`${default_path}/${contest_id}`)) {
+      try {
+        fs.mkdirSync(`${default_path}/${contest_id}`);
+      } catch {
+        throw Exception.canNotCreateFolder(`${default_path}/${contest_id}`);
       }
-      let number_of_problems =param.split("-")[1].charCodeAt(0)  - param.split("-")[0].charCodeAt(0) + 1;
-      console.log(number_of_problems)
-      let extension_file = param.split(".")[1];
-      
-      if(!fs.existsSync(`${default_path}/${contest_id}`)){
-        try {
-          fs.mkdirSync(`${default_path}/${contest_id}`);
-        }catch { 
-          throw Exception.CanNotCreateFolder(`${default_path}/${contest_id}`);
-        }
+    }
+    loadConfigFile();
+    let config = getConfig();
+    if (config["extension"][extension_file] === undefined) {
+      throw Exception.languageNotFound(extension_file);
+    }
+    let config_languages = config["extension"][extension_file]["template"];
+    
+    let file_created = [];
+    if (param.search("-") === -1) {
+      file_created.push(`${param.split(".")[0]}.${extension_file}`);
+      if (config_languages === "") {
+        fs.writeFileSync(`${default_path}/${contest_id}/${param.split(".")[0]}.${extension_file}`, '');
+      } else {
+        fs.copyFileSync(`${config_languages}`, `${default_path}/${contest_id}/${param.split(".")[0]}.${extension_file}`);
       }
-      loadConfigFile();
-      let config = getConfig();
-      if(config["extension"][extension_file] === undefined){
-        console.log("Languague not found");
-        return 0;
+    } else {
+      param = param.split(".")[0];
+      if(param.split("-")[0].charCodeAt(0) > param.split("-")[1].charCodeAt(0)){
+        throw Exception.canNotCreateFile();
       }
-      let config_languages = config["extension"][extension_file]["template"];
-      
-      
-      for(let i = 65; i - 65 < number_of_problems; i++){
-        if(config_languages === ""){
-          console.log(config_languages);
-          fs.writeFileSync(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`.toString(), '');
-        }else {
+      for (let i = param.split("-")[0].charCodeAt(0); i <= param.split("-")[1].charCodeAt(0); i++) {
+        file_created.push(`${String.fromCharCode(i)}.${extension_file}`);
+        if (config_languages === "") {
+          fs.writeFileSync(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`, '');
+        } else {
           fs.copyFileSync(`${config_languages}`, `${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
         }
       }
-      return true;
     }
+
+    on_file_created(file_created);
+  }
   /**
    * Creates a file for a specific problem based on the provided parameters.
    * @param {String} default_path - The default path where the problem file will be created.
    * @param {String} param - A string containing the problem name and file extension in the format "problemName.extension".
    */
-	static createProblem(default_path, param) {
-		if(!problem_regex.test(param)){
-			throw Exception.InvalidFileName(param);
-		}
-		let problem_name = param.split(".")[0];
-		let extension_file = param.split(".")[1];
-		loadConfigFile();
-		let config = getConfig();
-    if(config["extension"][0][extension_file] === undefined){
-      throw Exception.LanguageNotFound(extension_file);
+  static createProblem(default_path, param, { on_file_created = () => { } }) {
+    if (!problem_regex.test(param)) {
+      console.log(param);
+      throw Exception.invalidFile(param);
     }
-		let config_languages = config["languages"][extension_file]["template"];
-		if(config_languages === ""){
-      fs.writeFileSync(`${default_path}/${problem_name}.${extension_file}`);
-    }else {
-      fs.copyFileSync(`${config_languages}`, `${default_path}/${problem_name}.${extension_file}`);
+    let extension_file = param.split(".")[1];
+    loadConfigFile();
+    let config = getConfig();
+    if (config["extension"][extension_file] === undefined) {
+      throw Exception.languageNotFound(extension_file);
     }
-    return true;
-	}
+    let config_languages = config["extension"][extension_file]["template"];
+    let file_created = [];
+    if (param.search("-") === -1) {
+      file_created.push(`${param.split(".")[0]}.${extension_file}`);
+      if (config_languages === "") {
+        fs.writeFileSync(`${default_path}/${param.split(".")[0]}.${extension_file}`, '');
+      } else {
+        fs.copyFileSync(`${config_languages}`, `${default_path}/${param.split(".")[0]}.${extension_file}`);
+      }
+    } else {
+      param = param.split(".")[0];
+      if(param.split("-")[0].charCodeAt(0) > param.split("-")[1].charCodeAt(0)){
+        throw Exception.canNotCreateFile();
+      }
+      for (let i = param.split("-")[0].charCodeAt(0); i <= param.split("-")[1].charCodeAt(0); i++) {
+        file_created.push(`${String.fromCharCode(i)}.${extension_file}`);
+        if (config_languages === "") {
+          fs.writeFileSync(`${default_path}/${String.fromCharCode(i)}.${extension_file}`, '');
+        } else {
+          fs.copyFileSync(`${config_languages}`, `${default_path}/${String.fromCharCode(i)}.${extension_file}`);
+        }
+      }
+    }
+
+    on_file_created(file_created);
+  }
 
 
   /**

@@ -6,7 +6,9 @@ class Exception {
   static noSourceFile(fileDirectory) {
     return new Error(`No source file with name: ${fileDirectory}`);
   }
-
+  static canNotCreateFolder(pathFolder){
+    return new Error(`Folder can not create: ${pathFolder}`);
+  }
   static noTestAvailable(fileName) {
     return new Error(`No test file for source file: ${fileName}`);
   }
@@ -22,11 +24,18 @@ class Exception {
   static noBinaryFile(fileName) {
     return new Error(`No binary file found for source file: ${fileName}`);
   }
-
-  static invalidFileFormat(fileName) {
-    return new Error(`Can't not get file extension from: ${fileName}`)
+  static invalidContestFormat(contest){
+    return new Error(`Invalid contest format : ${fileName}`)
   }
-
+  static invalidFile(fileName){
+    return new Error(`Invalid file format : ${fileName}`)
+  }
+  static languageNotFound(language){
+    return new Error(`Invalid language : ${language}`)
+  }
+  static invalidFileFormat(fileName) {
+    return new Error(`Can not get file extension from: ${fileName}`)
+  }
   static unsupportedFileExtension(extension) {
     return new Error(`The .${extension} extension is not supported`);
   }
