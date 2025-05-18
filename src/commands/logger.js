@@ -49,6 +49,10 @@ class Logger {
   static logFolderSpinner(path, { spinner = createSpinner() } = {}) {
     spinner.info({ text: Logger.logFolder(path), mark: "i" });
   }
+  
+  static logInfoSpinner(message) {
+    createSpinner().info({ text: Logger.info(message), mark: 'i' });
+  }
   static logErrorSpinner(message, { spinner = createSpinner() } = {}) {
     spinner.error({ text: Logger.error(message) });
   }
@@ -60,6 +64,11 @@ class Logger {
   }
   static logInfoSpinner(message, { spinner = createSpinner() } = {}) {
     spinner.info({ text: Logger.info(message), mark: "i" });
+  }
+  static logFileCreated(file_created, {spinner = createSpinner()} = {}){
+    for (let message of file_created){
+      spinner.success({text : Logger.success(`File ${message} created`)});
+    }
   }
   static logVerdict(verdict, { spinner = createSpinner() } = {}) {
     switch (verdict) {
