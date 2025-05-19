@@ -55,7 +55,7 @@ class Creator {
       throw Exception.languageNotFound(extension_file);
     }
     let config_languages = config["extension"][extension_file]["template"];
-    
+
     let file_created = [];
     if (param.search("-") === -1) {
       file_created.push(`${param.split(".")[0]}.${extension_file}`);
@@ -66,7 +66,7 @@ class Creator {
       }
     } else {
       param = param.split(".")[0];
-      if(param.split("-")[0].charCodeAt(0) > param.split("-")[1].charCodeAt(0)){
+      if (param.split("-")[0].charCodeAt(0) > param.split("-")[1].charCodeAt(0)) {
         throw Exception.canNotCreateFile();
       }
       for (let i = param.split("-")[0].charCodeAt(0); i <= param.split("-")[1].charCodeAt(0); i++) {
@@ -108,7 +108,7 @@ class Creator {
       }
     } else {
       param = param.split(".")[0];
-      if(param.split("-")[0].charCodeAt(0) > param.split("-")[1].charCodeAt(0)){
+      if (param.split("-")[0].charCodeAt(0) > param.split("-")[1].charCodeAt(0)) {
         throw Exception.canNotCreateFile();
       }
       for (let i = param.split("-")[0].charCodeAt(0); i <= param.split("-")[1].charCodeAt(0); i++) {
