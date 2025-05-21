@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import { Crawler } from "../parser/crawler.js";
+import { TestCase } from "../test/testcase.js";
 import { ProblemData } from "../test/problem_data.js";
 import { Exception } from "../error_handler/error.js";
 import {
@@ -117,7 +118,6 @@ class Creator {
 
     on_file_created(file_created);
   }
-
 
   /**
    * generate a folder containing tests from given problemData
