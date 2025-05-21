@@ -2,15 +2,14 @@
 The tool for Competitive programming (CP)
 ---
 ## Installation
-### Using npm
-```bash
-npm i online-judge-supporter
-```
-### Self install 
-#### Requirements
+### Requirements
 - Git 
 - NodeJs
-- npm
+### Using npm
+```bash
+npm i -g online-judge-supporter
+```
+### Self install 
 #### Install
 ```bash
 git clone https://github.com/bibimoni/online-judge-supporter.git
