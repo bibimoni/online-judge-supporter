@@ -4,13 +4,12 @@ The tool for Competitive programming (CP)
 ## Installation
 ### Using npm
 ```bash
-npm i online-judge-supporter
+npm i -g online-judge-supporter
 ```
 ### Self install 
 #### Requirements
 - Git 
-- NodeJs
-- npm
+- Node.js
 #### Install
 ```bash
 git clone https://github.com/bibimoni/online-judge-supporter.git
@@ -22,6 +21,6 @@ npm link
 After install you can use it in your terminal, by using `ojs`.
 You can use `ojs --help` to know how to use it.
 ## Config 
-In home directory it's contain `online-judge-supporter_config.json`, you can open it and setting.
+In your home director, a file named `online-judge-supporter_config.json` will appear, you can config the CLI via that file.
 ### Caution 
-If you delete that file, it's also delete all your configuration, so be careful before delete it.
+If you delete that file, it will revert back to the original configuration, so be careful before delete it.
