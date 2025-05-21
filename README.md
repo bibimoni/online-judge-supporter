@@ -21,6 +21,6 @@ npm link
 After install you can use it in your terminal, by using `ojs`.
 You can use `ojs --help` to know how to use it.
 ## Config 
-In your home director, a file named `online-judge-supporter_config.json` will appear, you can config the CLI via that file.
+In your home directory, a file named `online-judge-supporter_config.json` will appear, you can config the CLI via that file.
 ### Caution 
 If you delete that file, it will revert back to the original configuration, so be careful before delete it.
