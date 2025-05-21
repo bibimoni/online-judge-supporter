@@ -5,7 +5,7 @@ class Exception {
   static noSourceFile(fileDirectory) {
     return new Error(`No source file with name: ${fileDirectory}`);
   }
-  static canNotCreateFolder(pathFolder){
+  static canNotCreateFolder(pathFolder) {
     return new Error(`Folder can not create: ${pathFolder}`);
   }
   static noTestAvailable(fileName) {
@@ -20,13 +20,13 @@ class Exception {
   static noBinaryFile(fileName) {
     return new Error(`No binary file found for source file: ${fileName}`);
   }
-  static invalidContestFormat(contest){
+  static invalidContestFormat(contest) {
     return new Error(`Invalid contest format : ${fileName}`)
   }
-  static invalidFile(fileName){
+  static invalidFile(fileName) {
     return new Error(`Invalid file format : ${fileName}`)
   }
-  static languageNotFound(language){
+  static languageNotFound(language) {
     return new Error(`Invalid language : ${language}`)
   }
   static invalidFileFormat(fileName) {

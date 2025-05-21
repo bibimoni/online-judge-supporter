@@ -3,6 +3,7 @@ import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { loadCookieJar, timeoutDuration } from "../config/load_config.js";
 import { Exception } from "../error_handler/error.js";
+import { gotScraping } from "got-scraping"
 
 const SUCCESS = 200;
 
@@ -52,8 +53,9 @@ const getHtmlDataBypass = async (url) => {
 /**
  * getHtml with puppeteer using cookie
  *
- * @param {String} url
- * @param {CookieJar} jar
+ * @param {String} url (atcoder, codeforces) ?
+ * @param {String} testUrl (to check if user login)
+ * @param {String} jar Url of cookie jar 
  * @returns Axios Responses
  */
 const getHtmlDataWithCookieJar = async (siteName, testUrl, cookieUrl) => {
@@ -108,11 +110,40 @@ const getHtmlDataWithCookieJar = async (siteName, testUrl, cookieUrl) => {
   });
 };
 
+const getHtmlWithRequest = async (siteName, url, cookieUrl) => {
+  let jar;
+  try {
+    jar = loadCookieJar(siteName);
+  }
+  catch (err) {
+    throw err;
+  }
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await gotScraping({
+        url,
+        cookieJar: jar,
+        followRedirect: false
+      });
+      if (res.statusCode >= 300) {
+        reject(Exception.canNotFetchData(url));
+      }
+      resolve({ status: SUCCESS, content: res.body });
+    }
+    catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export { getHtmlWithRequest };
 export { getHtmlData };
 export { getHtmlDataBypass };
 export { getHtmlDataWithCookieJar };
 export default {
   getHtmlData,
   getHtmlDataBypass,
-  getHtmlDataWithCookieJar
+  getHtmlDataWithCookieJar,
+  getHtmlWithRequest
 };

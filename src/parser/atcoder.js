@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { getHtmlDataWithCookieJar } from "./fetcher.js";
+import { getHtmlDataWithCookieJar, getHtmlWithRequest } from "./fetcher.js";
 import { TestCase } from "../test/testcase.js";
 import { ProblemData } from "../test/problem_data.js";
 import { Exception } from "../error_handler/error.js";
@@ -82,7 +82,8 @@ class Atcoder {
   async getHtmlWithLogin(url) {
     let res;
     try {
-      res = await getHtmlDataWithCookieJar(this.name, url, this.baseUrl);
+      // res = await getHtmlDataWithCookieJar(this.name, url, this.baseUrl);
+      res = await getHtmlWithRequest(this.name, url, this.baseUrl);
     } catch (err) {
       throw Exception.notLoggedIn(this.baseUrl);
     }
