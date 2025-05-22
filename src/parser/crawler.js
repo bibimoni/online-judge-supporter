@@ -1,5 +1,6 @@
 import { Atcoder } from "./atcoder.js";
 import { Codeforces } from "./codeforces.js";
+import { Vnoj } from "./vnoj.js";
 import { Exception } from "../error_handler/error.js";
 import { saveCookie } from "../config/load_config.js";
 
@@ -12,6 +13,7 @@ class Crawler {
     this.map = new Map();
     this.addSite(new Atcoder());
     this.addSite(new Codeforces());
+    this.addSite(new Vnoj());
   }
   /**
    * return the letter indicating the order of the problem
