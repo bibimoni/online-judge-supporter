@@ -53,6 +53,9 @@ class Exception {
   static canNotFetchData(site) {
     return new Error(`Failed to fetch from ${site}`);
   }
+  static errorWhenFetch(url) {
+    return new Error(`An error occurred when try to fetch from ${url} (try to login or provide correct url)`);
+  }
 }
 export { Exception };
 export default {

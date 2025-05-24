@@ -143,10 +143,10 @@ const getHtmlWithLogin = async (url, site) => {
   try {
     res = await getHtmlWithRequest(site.name, url);
   } catch (err) {
-    throw Exception.notLoggedIn(site.baseUrl);
+    throw Exception.errorWhenFetch(site.baseUrl);
   }
   if (res.status !== SUCCESS) {
-    throw Exception.notLoggedIn(site.baseUrl);
+    throw Exception.errorWhenFetch(site.baseUrl);
   }
   return res.content;
 }
