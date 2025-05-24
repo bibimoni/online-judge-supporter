@@ -53,7 +53,7 @@ class Crawler {
         catch (err) {
           throw err;
         }
-        return;
+        return site.baseUrl;
       }
     }
     throw Exception.unsupportedUrl(url);

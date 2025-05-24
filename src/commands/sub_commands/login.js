@@ -11,11 +11,11 @@ const loginCommand = (program) => {
       const crawler = new Crawler();
       const spinner = createSpinner();
       spinner.start({
-        text: Logger.access(`Logging in: ${url}`),
+        text: Logger.access(`Logging in`),
       });
       try {
-        await crawler.login(url);
-        Logger.logSuccessSpinner(`Logged in to ${url} successfully!`, {
+        const siteUrl = await crawler.login(url);
+        Logger.logSuccessSpinner(`Logged in to ${siteUrl} successfully!`, {
           spinner: spinner,
         });
       }
