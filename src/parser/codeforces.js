@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { getHtmlData, getHtmlDataBypass, getHtmlDataWithCookieJar, getHtmlWithRequest } from "./fetcher.js";
+import { getHtmlWithLogin } from "./fetcher.js";
 import { TestCase } from "../test/testcase.js";
 import { ProblemData } from "../test/problem_data.js";
 import { connect } from "puppeteer-real-browser";
@@ -7,7 +7,6 @@ import { Exception } from "../error_handler/error.js";
 import { timeoutDuration } from "../config/load_config.js";
 
 const codeforces_tl_ml_regex = /(\d+\.\d+|\d+)/;
-const SUCCESS = 200;
 
 class Codeforces {
   constructor() {
@@ -92,9 +91,7 @@ class Codeforces {
       return test_data;
     };
     return new Promise((resolve, reject) => {
-      // getHtmlDataBypass(url)
-      this.getHtmlWithLogin(url)
-        // getHtmlData(url)
+      getHtmlWithLogin(url, this)
         .then(call_back)
         .then(obj => {
           obj.url = url;
@@ -102,19 +99,6 @@ class Codeforces {
         })
         .catch(err => reject(err));
     });
-  }
-  async getHtmlWithLogin(url) {
-    let res;
-    try {
-      // res = await getHtmlDataWithCookieJar(this.name, url, this.baseUrl);
-      res = await getHtmlWithRequest(this.name, url);
-    } catch (err) {
-      throw Exception.notLoggedIn(this.baseUrl);
-    }
-    if (res.status !== SUCCESS) {
-      throw Exception.notLoggedIn(this.baseUrl);
-    }
-    return res.content;
   }
 
   async login() {

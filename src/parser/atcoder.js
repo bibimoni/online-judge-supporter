@@ -1,12 +1,11 @@
 import * as cheerio from "cheerio";
-import { getHtmlDataWithCookieJar, getHtmlWithRequest } from "./fetcher.js";
+import { getHtmlWithLogin } from "./fetcher.js";
 import { TestCase } from "../test/testcase.js";
 import { ProblemData } from "../test/problem_data.js";
 import { Exception } from "../error_handler/error.js";
 import { connect } from "puppeteer-real-browser";
 import { timeoutDuration } from "../config/load_config.js";
 
-const SUCCESS = 200;
 const atcoder_sample_input_regex = /^Sample Input [0-9]+/;
 const atcoder_sample_output_regex = /^Sample Output [0-9]+/;
 const atcoder_tl_ml_regex = /\s*Time Limit:\s*([\d.]+)\s*sec\s*\/\s*Memory Limit:\s*(\d+)/;
@@ -70,7 +69,7 @@ class Atcoder {
       return test_data;
     };
     return new Promise((resolve, reject) => {
-      this.getHtmlWithLogin(url)
+      getHtmlWithLogin(url, this)
         .then(call_back)
         .then((obj) => {
           obj.url = url;
@@ -79,19 +78,7 @@ class Atcoder {
         .catch((err) => reject(err));
     });
   }
-  async getHtmlWithLogin(url) {
-    let res;
-    try {
-      // res = await getHtmlDataWithCookieJar(this.name, url, this.baseUrl);
-      res = await getHtmlWithRequest(this.name, url, this.baseUrl);
-    } catch (err) {
-      throw Exception.notLoggedIn(this.baseUrl);
-    }
-    if (res.status !== SUCCESS) {
-      throw Exception.notLoggedIn(this.baseUrl);
-    }
-    return res.content;
-  }
+
   async login() {
     try {
       const { page, browser } = await connect({

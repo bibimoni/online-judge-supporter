@@ -18,6 +18,7 @@ const getHtmlData = (url) => {
       .catch((err) => reject(err));
   });
 };
+
 // try to bypass cloudflare, this fetches significantly slower than the axios version
 // only use when the axios version doesn't work.
 const getHtmlDataBypass = async (url) => {
@@ -137,11 +138,26 @@ const getHtmlWithRequest = async (siteName, url, cookieUrl) => {
   });
 }
 
+const getHtmlWithLogin = async (url, site) => {
+  let res;
+  try {
+    res = await getHtmlWithRequest(site.name, url);
+  } catch (err) {
+    throw Exception.notLoggedIn(site.baseUrl);
+  }
+  if (res.status !== SUCCESS) {
+    throw Exception.notLoggedIn(site.baseUrl);
+  }
+  return res.content;
+}
+
+export { getHtmlWithLogin };
 export { getHtmlWithRequest };
 export { getHtmlData };
 export { getHtmlDataBypass };
 export { getHtmlDataWithCookieJar };
 export default {
+  getHtmlWithLogin,
   getHtmlData,
   getHtmlDataBypass,
   getHtmlDataWithCookieJar,
