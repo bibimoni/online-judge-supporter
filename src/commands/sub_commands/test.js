@@ -45,6 +45,7 @@ const addTestCaseManually = (fileName) => {
 const viewTestCase = (testcase) => {
   Logger.logInfoSpinner(`Testcase ${testcase.fileName}`);
   Logger.input(testcase.input);
+  testcase.output ??= "";
   Logger.output(testcase.output);
 };
 const testCommand = (program) => {
