@@ -161,10 +161,10 @@ class Creator {
       fs.writeFileSync(outputPath, test.output);
       onFileCreate(`${testFolderPrefix}${problemShortName}/${ansPrefixTestName}${index}`, test.output, "output");
       if (test.isMultiTest) {
-        fs.ensureDir(multiInputPath, mode);
+        fs.ensureDirSync(multiInputPath, mode);
         onFolderCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/`);
         test.multiTestCase.forEach(async (mutliTest, multiTestIndex) => {
-          const multiTestPath = `${multiInputPath}${inputPrefixTestName}${multiTestIndex}`;
+          const multiTestPath = `${multiInputPath}${inputPrefixTestName}${multiTestIndex + testcaseStartIndex}`;
           fs.writeFileSync(multiTestPath, mutliTest.input);
           // multiTest trigger
           // onFileCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/${inputPrefixTestName}${multiTestIndex}`, '', 'multitest input');

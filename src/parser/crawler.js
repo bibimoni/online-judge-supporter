@@ -65,21 +65,6 @@ class Crawler {
   addSite(site) {
     this.map.set(site.name, site);
   }
-  // /**
-  //  * @param {String} site
-  //  * @param {String} contest_id
-  //  * @param {String} problem_id
-  //  * @return {Object: { "status", "testcase" }} problem data with testcases and status code
-  //  */
-  // getProblem(site, contest_id, problem_id) {
-  //   return new Promise((resolve, reject) => {
-  //     this.map
-  //       .get(site)
-  //       .getProblem(contest_id, problem_id)
-  //       .then((item) => resolve(wrapper(SUCCESS, item)))
-  //       .catch((err) => reject(err));
-  //   });
-  // }
 }
 export { Crawler };
 export default {
