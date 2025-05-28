@@ -6,6 +6,8 @@ import { Verdict } from "../../test/verdict.js";
 import { createSpinner } from "nanospinner";
 import { Creator } from "../../file_creator/creator.js";
 import { formatDirPath } from "../../file_creator/utils.js";
+import { testcaseStartIndex } from "../../config/load_config.js";
+
 const path = process.cwd();
 const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
   const spinner = createSpinner();
@@ -28,8 +30,10 @@ const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
 };
 const startJudgeWithDebug = async (testcase, compiler) => {
   Logger.logInfoSpinner(`Input file: ${testcase.fileName}`);
+  Logger.input(testcase.input);
   await compiler.runTestWithDebug(testcase.input);
 };
+
 const addTestCaseManually = (fileName) => {
   Creator.addTestCase(formatDirPath(path), fileName, {
     onBeginInput: () => {
@@ -62,6 +66,11 @@ const testCommand = (program) => {
     .option("-v, --view", "view testcase")
     .action(async (fileName, options) => {
       // const filePath = `${path}/${fileName}`;
+      if (options.debug && options.view) {
+        // this will cause frustration if user want to use debug but not view, but accidentally leave it as it is, so i warn them
+        Logger.logErrorSpinner(`Please don't use debug with view!`);
+        return;
+      }
       const filePath = `${fileName}`;
       if (options.add) {
         addTestCaseManually(fileName);
@@ -75,7 +84,7 @@ const testCommand = (program) => {
       const multiTestIndex = options.multi_test;
       let multiTestEntry = null;
       if (multiTestIndex) {
-        multiTestEntry = parseInt(multiTestIndex);
+        multiTestEntry = parseInt(multiTestIndex) - testcaseStartIndex;
       }
       let testcases;
       let testOne;
@@ -105,8 +114,8 @@ const testCommand = (program) => {
         if (testEntry !== null) {
           testOne = testcases[testEntry];
         }
-        if (multiTestEntry !== null &&
-          !testOne.multiTestCaseAt(multiTestEntry)) {
+        // Since multitestCaseAt always start with '0' and it also being used for other purposes so i need to do some workaround here
+        if (multiTestEntry !== null && !testOne.multiTestCaseAt(multiTestEntry)) {
           Logger.logErrorSpinner(Exception.testFileNotFound(fileName, multiTestIndex).message);
           return;
         }

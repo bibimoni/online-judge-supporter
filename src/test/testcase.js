@@ -1,4 +1,3 @@
-import { Verdict } from "./verdict.js";
 import { TokenType, Token } from "./token.js";
 import { getConfig, loadConfigFile } from "../config/load_config.js";
 import { Exception } from "../error_handler/error.js";
@@ -7,6 +6,7 @@ import path from "path";
 import { mode, ansPrefixTestName, inputPrefixTestName, multiTestFolderPrefix, testFolderPrefix } from "../config/load_config.js";
 import { validateFilePath, getFileNameFromPath, getDirectoryFromPath, getBaseFileName } from "../compiler/utils.js";
 import { getTestIndexFromTestName } from "./utils.js";
+
 class TestCase {
   constructor({ input, output } = {}) {
     this._input = input;
