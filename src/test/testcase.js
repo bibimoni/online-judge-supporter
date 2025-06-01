@@ -178,7 +178,8 @@ class TestCase {
   }
   static #readTestContent(file, regex) {
     if (regex.test(file.name)) {
-      const filePath = `${path.normalize(file.path)}${file.name}`;
+      // FUCK! why they change from path to parentPath
+      const filePath = `${path.normalize(file.parentPath)}${file.name}`;
       try {
         return fs.readFileSync(filePath, { encoding: "utf8" });
       }
