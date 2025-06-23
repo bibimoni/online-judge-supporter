@@ -72,6 +72,18 @@ const testCommand = (program) => {
         return;
       }
       const filePath = `${fileName}`;
+      let compiler;
+      compiler = new Compiler({ filePath: filePath });
+      if (options.interactive) {
+        try {
+          compiler.buildFile({ debug: options.debug });
+        } catch (_) {
+          Logger.logVerdict(Verdict.CE);
+          return;
+        }
+        await compiler.runInteractive();
+        return;
+      }
       if (options.add) {
         addTestCaseManually(fileName);
         return;
@@ -95,7 +107,6 @@ const testCommand = (program) => {
         Logger.logErrorSpinner(e.message);
         return;
       }
-      let compiler;
       try {
         if (Object.keys(testcases).length === 0) {
           Logger.logErrorSpinner(Exception.noTestAvailable(fileName).message);
@@ -128,7 +139,6 @@ const testCommand = (program) => {
             fileName: testOne.fileName,
           };
         }
-        compiler = new Compiler({ filePath: filePath });
       }
       catch (e) {
         Logger.logErrorSpinner(e.message);
@@ -151,10 +161,6 @@ const testCommand = (program) => {
       }
       catch (_) {
         Logger.logVerdict(Verdict.CE);
-        return;
-      }
-      if (options.interactive) {
-        await compiler.runInteractive();
         return;
       }
       if (testEntry === null) {
