@@ -73,34 +73,40 @@ class Logger {
       spinner.success({ text: Logger.success(`File ${message} created`) });
     }
   }
-  static logVerdict(verdict, { spinner = createSpinner() } = {}) {
+  /**
+   * @param {Number} verdict
+   * @param {Object} options note is put after the verdict, use it to say which
+   * testcase failed (stress runs want that, it shows how close the solution is)
+   */
+  static logVerdict(verdict, { spinner = createSpinner(), note = "" } = {}) {
+    const suffix = note.length > 0 ? ` ${chalk.grey(note)}` : "";
     switch (verdict) {
       case Verdict.CE:
-        Logger.logErrorSpinner(chalk.cyan("CE"), { spinner: spinner });
+        Logger.logErrorSpinner(chalk.cyan("CE") + suffix, { spinner: spinner });
         break;
       case Verdict.MLE:
-        Logger.logErrorSpinner(chalk.yellow("MLE"), { spinner: spinner });
+        Logger.logErrorSpinner(chalk.yellow("MLE") + suffix, { spinner: spinner });
         break;
       case Verdict.TLE:
-        Logger.logErrorSpinner(chalk.blue("TLE"), { spinner: spinner });
+        Logger.logErrorSpinner(chalk.blue("TLE") + suffix, { spinner: spinner });
         break;
       case Verdict.RE:
-        Logger.logErrorSpinner(chalk.red("RE"), { spinner: spinner });
+        Logger.logErrorSpinner(chalk.red("RE") + suffix, { spinner: spinner });
         break;
       case Verdict.WA:
-        Logger.logErrorSpinner(chalk.redBright("WA"), { spinner: spinner });
+        Logger.logErrorSpinner(chalk.redBright("WA") + suffix, { spinner: spinner });
         break;
       case Verdict.AC:
-        Logger.logSuccessSpinner(chalk.green("AC"), { spinner: spinner });
+        Logger.logSuccessSpinner(chalk.green("AC") + suffix, { spinner: spinner });
         break;
       case Verdict.CRASH:
-        Logger.logErrorSpinner(chalk.red("CRASH"), { spinner: spinner });
+        Logger.logErrorSpinner(chalk.red("CRASH") + suffix, { spinner: spinner });
         break;
       case Verdict.UNKNOWN:
-        Logger.logErrorSpinner(chalk.grey("UNKNOWN"), { spinner: spinner });
+        Logger.logErrorSpinner(chalk.grey("UNKNOWN") + suffix, { spinner: spinner });
         break;
       default:
-        Logger.logErrorSpinner("Unknown error", { spinner: spinner });
+        Logger.logErrorSpinner("Unknown error" + suffix, { spinner: spinner });
     }
   }
 }

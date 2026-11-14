@@ -30,10 +30,11 @@ class Codeforces {
    * line is a div, so `.text()` glues them together ("1", "2", "10" becomes
    * "1210"), the lines have to be joined with a newline
    *
+   * @param {cheerio.CheerioAPI} $ the loaded document, not a module global
    * @param {cheerio.Cheerio} pre the pre element of the sample
    * @returns {String}
    */
-  static readSampleText(pre) {
+  static readSampleText($, pre) {
     if (!pre.children().length) {
       return pre.text();
     }
@@ -94,14 +95,14 @@ class Codeforces {
             }
           }
           else {
-            current_input = Codeforces.readSampleText($(input));
+            current_input = Codeforces.readSampleText($, $(input));
           }
           test.input = current_input;
           small_unit_tests.forEach((small_test) => test.addMultiTestCase(small_test));
           test_data.addTestCase(test);
         });
         $(test).find('.output pre').each((index, output) => {
-          test_data.editOutput(index, Codeforces.readSampleText($(output)));
+          test_data.editOutput(index, Codeforces.readSampleText($, $(output)));
         });
       });
       return test_data;
