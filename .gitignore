@@ -2,3 +2,4 @@ node_modules/
 testdir/
 src/*/tests.js
 src/tests.js
+.pi/
