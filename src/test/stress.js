@@ -1,4 +1,3 @@
-import fs from "fs-extra";
 import { Compiler } from "../compiler/compiler.js";
 import { TestCase } from "../test/testcase.js";
 import { Verdict } from "../test/verdict.js";
@@ -6,8 +5,8 @@ import { Generator } from "../file_creator/generator.js";
 import { Checker } from "../file_creator/checker.js";
 import { Creator } from "../file_creator/creator.js";
 import { goodMiddleName } from "../config/load_config.js";
-import { getFileNameFromPath, getBaseFileName, getDirectoryFromPath } from "../compiler/utils.js";
-import { formatDirPath } from "../file_creator/utils.js";
+import { getFileNameFromPath, getDirectoryFromPath } from "../compiler/utils.js";
+import { formatDirPath, findCompanionFile } from "../file_creator/utils.js";
 import { Exception } from "../error_handler/error.js";
 
 // the generator, the checker and the good solution have no expected output,
@@ -41,17 +40,13 @@ class Stress {
   static find(filePath) {
     // a bare file name has no directory, so it's in the current directory
     let dir = formatDirPath(getDirectoryFromPath(filePath)) || "./";
-    let baseName = getBaseFileName(getFileNameFromPath(filePath));
-    let good = fs
-      .readdirSync(dir)
-      .find((name) => name.startsWith(`${baseName}${goodMiddleName}.`) && name !== getFileNameFromPath(filePath));
     return new Stress({
       filePath: filePath,
       dir: dir,
       solution: new Compiler({ filePath: filePath }),
       generator: Generator.find(filePath),
       checker: Checker.find(filePath),
-      good: good ? `${dir}${good}` : null,
+      good: findCompanionFile(filePath, goodMiddleName),
     });
   }
   /**
