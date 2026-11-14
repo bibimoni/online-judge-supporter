@@ -4,18 +4,22 @@ import { Verdict } from "../../test/verdict.js";
 import { getConfig } from "../../config/load_config.js";
 import { createSpinner } from "nanospinner";
 
+// used when the config of an older install doesn't have stressTestCaseCount yet
+const defaultTestCaseCount = 1000;
 const startStressing = async (stress, { count, seed, timeLimit }) => {
+  // one spinner for the whole run, an accepted testcase only updates its text
+  // so a long stress test doesn't flood the terminal with AC lines
+  const spinner = createSpinner();
   for (let index = 1; index <= count; index++) {
-    const spinner = createSpinner();
-    spinner.start({ text: Logger.info(`Test ${index}/${count}`) });
+    spinner.start({ text: Logger.info(`Judging testcase ${index}/${count}`) });
     const result = await stress.judge({
       seed: seed === null ? null : seed + index - 1,
       timeLimit: timeLimit,
     });
-    Logger.logVerdict(result["verdict"], { spinner: spinner });
     if (result["verdict"] === Verdict.AC) {
       continue;
     }
+    Logger.logVerdict(result["verdict"], { spinner: spinner });
     Logger.input(result["output"]);
     // without a checker the answer of the good solution is the only thing to
     // compare with, so show the difference line by line
@@ -28,6 +32,7 @@ const startStressing = async (stress, { count, seed, timeLimit }) => {
     }
     return;
   }
+  spinner.success({ text: Logger.success(`All ${count} testcases accepted`) });
 };
 
 const stressCommand = (program) => {
@@ -36,7 +41,7 @@ const stressCommand = (program) => {
     .description("Stress test a solution with a generator, a good solution and a checker")
     .alias("s")
     .argument("<filename>", "Name of the source code (a.rs, b.cpp, c.py, ...)")
-    .option("-n, --count <count>", "number of testcases", "1000")
+    .option("-n, --count <count>", "number of testcases, defaults to stressTestCaseCount in the config")
     .option("-s, --seed <seed>", "random seed of the first testcase (increases by one each test)")
     .option("--time <milliseconds>", "time limit of each execution, defaults to the timeout in the config")
     .action(async (fileName, options) => {
@@ -61,7 +66,7 @@ const stressCommand = (program) => {
         Logger.logVerdict(Verdict.CE);
         return;
       }
-      const count = parseInt(options.count);
+      const count = parseInt(options.count ?? getConfig()["stressTestCaseCount"] ?? defaultTestCaseCount);
       if (!(count > 0)) {
         Logger.logErrorSpinner(`Count must be a positive number`);
         return;

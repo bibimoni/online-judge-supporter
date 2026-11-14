@@ -80,7 +80,7 @@ int main() {
 
 ```bash
 # generate testcases and judge them with the checker
-ojs stress a.cpp -n 1000 --seed 1 --time 2000
+ojs stress a.cpp --seed 1 --time 2000
 
 # no generator: type a testcase once, the good solution builds the answer
 ojs test a.cpp
@@ -96,7 +96,15 @@ good solution and either the checker's reason or a line by line difference.
 ## Config
 In your home directory, a file named `online-judge-supporter_config.json` will appear,
 you can configure the CLI via that file.
-The build/run command of each language is in it, `{file}`, `{relative_file}`, `{file_base}`
-and `{relative_dir}` are replaced with the paths of the source file.
+
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `stressTestCaseCount` | `1000` | how many testcases `ojs stress` generates, `-n` overrides it |
+| `timeout` | `3000` | time limit of a testcase in milliseconds |
+| `testComparatorExperiment` | `false` | compare numbers as numbers instead of text |
+| `extension` | | the build/run/debug command of each language |
+
+In the `extension` commands, `{file}`, `{relative_file}`, `{file_base}` and `{relative_dir}`
+are replaced with the paths of the source file.
 ### Caution
 If you delete that file, it will revert to the original configuration, so be careful before deleting it.
