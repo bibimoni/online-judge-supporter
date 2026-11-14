@@ -111,6 +111,7 @@ class Codeforces {
         await page.goto(this.loginUrl, { waitUntil: 'networkidle2' });
         await page.waitForNavigation({ timeout: timeoutDuration }); // move out of Cloudflare
         await page.waitForNavigation({ timeout: timeoutDuration }); // wait... checkforbrowser
+        await page.goto(this.loginUrl, { waitUntil: 'networkidle2' });
         await page.waitForSelector(this.submitLoginButton, { timeout: timeoutDuration });
         res = await page.waitForNavigation({ timeout: timeoutDuration });
       } catch (err) {

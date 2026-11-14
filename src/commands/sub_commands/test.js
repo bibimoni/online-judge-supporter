@@ -5,8 +5,9 @@ import { Exception } from "../../error_handler/error.js";
 import { Verdict } from "../../test/verdict.js";
 import { createSpinner } from "nanospinner";
 import { Creator } from "../../file_creator/creator.js";
-import { formatDirPath } from "../../file_creator/utils.js";
+import { formatDirPath, captureUserInput } from "../../file_creator/utils.js";
 import { testcaseStartIndex } from "../../config/load_config.js";
+import { Stress } from "../../test/stress.js";
 
 const path = process.cwd();
 const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
@@ -22,10 +23,61 @@ const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
   }
   if (result["verdict"] !== Verdict.AC) {
     Logger.input(testcase.input);
-    Logger.output(result["output"]);
-    if (!multiTest) {
-      Logger.answer(testcase.output);
+    if (result["verdict"] === Verdict.RE) {
+      Logger.errorOutput(result["error"]);
     }
+    else if (!multiTest && result["verdict"] === Verdict.WA) {
+      Logger.diff(testcase.output, result["output"]);
+    }
+    else {
+      Logger.output(result["output"]);
+    }
+  }
+};
+// the testcase is not built by hands, the generator builds it with the
+// index as the seed so the same index always gives the same testcase
+const startJudgingWithStress = async (stress, { index = null, testcase = null } = {}) => {
+  const spinner = createSpinner();
+  Logger.logInfoSpinner(`Testcase ${index} (built by the generator)`);
+  spinner.start({ text: Logger.info(`Running...`) });
+  const result = await stress.judge({
+    seed: index === null ? null : parseInt(index),
+    testcase: testcase,
+  });
+  Logger.logVerdict(result["verdict"], { spinner: spinner });
+  if (result["verdict"] === Verdict.AC) {
+    return;
+  }
+  Logger.input(result["output"]);
+  Logger.errorOutput(result["error"]);
+  if (result["expected"]) {
+    Logger.answer(result["expected"]);
+  }
+  if (result["rejected"]) {
+    Logger.logInfoSpinner(`Rejected testcase is saved in ${result["rejected"]}`);
+  }
+};
+// judge the solution with the testcase typed by hands, the good solution
+// builds the answer so the testcase is saved and can be found again
+const startStressJudging = async (stress) => {
+  Logger.logInfoSpinner("Enter Input (press Ctrl + C to exit)");
+  const testcase = { input: await captureUserInput() };
+  const spinner = createSpinner();
+  spinner.start({ text: Logger.info(`Running...`) });
+  const result = await stress.judge({ testcase: testcase });
+  Logger.logVerdict(result["verdict"], { spinner: spinner });
+  if (result["verdict"] === Verdict.AC) {
+    return;
+  }
+  if (result["verdict"] !== Verdict.RE) {
+    Logger.input(result["output"]);
+  }
+  Logger.errorOutput(result["error"]);
+  if (result["expected"]) {
+    Logger.answer(result["expected"]);
+  }
+  if (result["rejected"]) {
+    Logger.logInfoSpinner(`Rejected testcase is saved in ${result["rejected"]}`);
   }
 };
 const startJudgeWithDebug = async (testcase, compiler) => {
@@ -73,7 +125,12 @@ const testCommand = (program) => {
       }
       const filePath = `${fileName}`;
       let compiler;
-      compiler = new Compiler({ filePath: filePath });
+      try {
+        compiler = new Compiler({ filePath: filePath });
+      } catch (err) {
+        Logger.logErrorSpinner(err.message)
+        return;
+      }
       if (options.interactive) {
         try {
           compiler.buildFile({ debug: options.debug });
@@ -105,6 +162,62 @@ const testCommand = (program) => {
       }
       catch (e) {
         Logger.logErrorSpinner(e.message);
+        return;
+      }
+      // a testcase typed by hands, or a testcase built by the generator, see Stress
+      let stress = null;
+      if (!options.interactive) {
+        try {
+          stress = Stress.find(filePath);
+        } catch (_) {
+          stress = null;
+        }
+        // missing files only matter when the testcase is built by the stress
+        // helper, a testcase from the test folder is complete on its own
+        const missing = stress?.missingFiles();
+        if (missing && (testEntry === null || stress.isGenerated())) {
+          Logger.logErrorSpinner(missing.message);
+          return;
+        }
+      }
+      if (stress?.isGenerated() && testEntry === null) {
+        Logger.logErrorSpinner("The testcase is built by the generator, please use -t/-test <index>");
+        return;
+      }
+      if (stress?.isGenerated() && options.multi_test) {
+        Logger.logErrorSpinner("A testcase built by the generator has no multitest, please remove -m/--multi_test");
+        return;
+      }
+      if (stress?.isGenerated()) {
+        // the generator builds the testcase from the index, a testcase in the
+        // test folder is only used when it was typed
+        try {
+          compiler.buildFile({ debug: options.debug });
+          stress.good.buildFile({ debug: false });
+          stress.generator.buildFile({ debug: false });
+          stress.checker.buildFile({ debug: false });
+        } catch (_) {
+          Logger.logVerdict(Verdict.CE);
+          return;
+        }
+        await startJudgingWithStress(stress, {
+          index: testIndex,
+          testcase: testcases[testEntry]?.isMultiTest ? null : testcases[testEntry],
+        });
+        return;
+      }
+      // the solution has a good solution but no generator, so the testcase is
+      // typed and its answer is built by the good solution, see Stress
+      if (stress?.good && testEntry === null) {
+        try {
+          compiler.buildFile({ debug: options.debug });
+          stress.good.buildFile({ debug: false });
+          stress.checker?.buildFile({ debug: false });
+        } catch (_) {
+          Logger.logVerdict(Verdict.CE);
+          return;
+        }
+        await startStressJudging(stress);
         return;
       }
       try {

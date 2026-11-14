@@ -163,7 +163,7 @@ class Creator {
       if (test.isMultiTest) {
         fs.ensureDirSync(multiInputPath, mode);
         onFolderCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/`);
-        test.multiTestCase.forEach(async (mutliTest, multiTestIndex) => {
+        test.multiTestCase.forEach((mutliTest, multiTestIndex) => {
           const multiTestPath = `${multiInputPath}${inputPrefixTestName}${multiTestIndex + testcaseStartIndex}`;
           fs.writeFileSync(multiTestPath, mutliTest.input);
           // multiTest trigger
@@ -200,7 +200,6 @@ class Creator {
    * on certain state of the function
    */
   static async addTestCase(filePath, fileName, { onBeginInput = () => { }, onEndInput = () => { }, onBeginOutput = () => { }, onEndOutput = () => { }, onFileCreate = () => { }, onFolderCreate = () => { }, } = {}) {
-    let problemData = new ProblemData();
     let test = new TestCase();
     onBeginInput();
     test.input = await captureUserInput();
@@ -208,6 +207,22 @@ class Creator {
     onBeginOutput();
     test.output = await captureUserInput();
     onEndOutput();
+    Creator.addTestCaseToFolder(filePath, fileName, test, {
+      onFileCreate: onFileCreate,
+      onFolderCreate: onFolderCreate,
+    });
+  }
+  /**
+   * add an already built testcase into the problem's test folder
+   *
+   * @param {String} filePath path to the source file
+   * @param {String} fileName name of the source file (used as the test folder name)
+   * @param {TestCase} test
+   * @param {Object} options onFileCreate and onFolderCreate will get invoked when
+   * file or folder is created. use logger please.
+   */
+  static addTestCaseToFolder(filePath, fileName, test, { onFileCreate = () => { }, onFolderCreate = () => { } } = {}) {
+    let problemData = new ProblemData();
     problemData.addTestCase(test);
     Creator.generateTestFileWithFilePath(`${filePath}${fileName}`, problemData, {
       fileName: fileName,

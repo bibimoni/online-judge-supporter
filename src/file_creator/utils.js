@@ -5,7 +5,11 @@ import readline from "readline";
 //   await fs.ensureDir(`${filePath}/${folderName}/`, mode);
 // };
 // ensure directory path to have the finally slash
+// an empty path is the current directory, so it stays empty
 const formatDirPath = (path) => {
+    if (path.length === 0) {
+        return path;
+    }
     if (path[path.length - 1] !== "/") {
         return path + "/";
     }

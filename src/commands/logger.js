@@ -3,6 +3,14 @@ import package$0 from "../../package.json" with { type: "json" };
 import { createSpinner } from "nanospinner";
 import { Verdict } from "../test/verdict.js";
 const version = package$0.version;
+// split an output into lines, ignore the line ending of the last line
+const splitLines = (value) => {
+  const lines = (value ?? "").split(/\r?\n/);
+  if (lines[lines.length - 1] === "") {
+    lines.pop();
+  }
+  return lines;
+};
 class Logger {
   static input(input) {
     console.log(`${chalk.cyanBright("Input:")}\n${input}`);
@@ -12,6 +20,33 @@ class Logger {
   }
   static answer(answer) {
     console.log(`${chalk.green("Expected:")}\n${answer}`);
+  }
+  static errorOutput(error) {
+    console.log(`${chalk.magenta("Error:")}\n${error}`);
+  }
+  static diff(expected, output) {
+    console.log(`${chalk.green("Expected:")}\n${expected}`);
+    console.log(`${chalk.red("Ouput:")}\n${output}`);
+    const expectedLines = splitLines(expected);
+    const outputLines = splitLines(output);
+    const lineCount = Math.max(expectedLines.length, outputLines.length);
+    const lineNumberSize = String(lineCount).length;
+    // pad both columns so the difference is easy to spot
+    const expectedWidth = Math.max(...expectedLines.map((line) => line.length), "expected".length);
+    const outputWidth = Math.max(...outputLines.map((line) => line.length), 0);
+    const expectedColumn = (line, size) =>
+      `${line ?? chalk.grey("(missing)")}${" ".repeat(size - (line?.length ?? 0))}`;
+    console.log(chalk.bold("Difference:"));
+    console.log(`${" ".repeat(lineNumberSize)}   ${chalk.green("expected")}${" ".repeat(expectedWidth - "expected".length + 1)}| ${chalk.red("output")}`);
+    console.log(`${"─".repeat(lineNumberSize)}──${"─".repeat(expectedWidth + 1)}┼${"─".repeat(outputWidth + 1)}`);
+    for (let index = 0; index < lineCount; index++) {
+      const expectedLine = expectedLines[index];
+      const outputLine = outputLines[index];
+      const differing = expectedLine !== outputLine;
+      const marker = differing ? chalk.red("<") : " ";
+      const lineNumber = String(index + 1).padStart(lineNumberSize, " ");
+      console.log(`${lineNumber} ${marker} ${expectedColumn(expectedLine, expectedWidth)}| ${outputLine ?? chalk.grey("(missing)")}`);
+    }
   }
   static info(message) {
     return `[${chalk.blue("INFO")}] ${message}`;
@@ -89,6 +124,12 @@ class Logger {
         break;
       case Verdict.AC:
         Logger.logSuccessSpinner(chalk.green("AC"), { spinner: spinner });
+        break;
+      case Verdict.RJ:
+        Logger.logErrorSpinner(chalk.yellow("RJ"), { spinner: spinner });
+        break;
+      case Verdict.CRASH:
+        Logger.logErrorSpinner(chalk.red("CRASH"), { spinner: spinner });
         break;
       case Verdict.UNKNOWN:
         Logger.logErrorSpinner(chalk.grey("UNKNOWN"), { spinner: spinner });
