@@ -26,11 +26,11 @@ const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
     if (result["verdict"] === Verdict.RE) {
       Logger.errorOutput(result["error"]);
     }
-    else if (!multiTest && result["verdict"] === Verdict.WA) {
-      Logger.diff(testcase.output, result["output"]);
-    }
     else {
       Logger.output(result["output"]);
+      if (!multiTest) {
+        Logger.answer(testcase.output);
+      }
     }
   }
 };
@@ -49,14 +49,10 @@ const startJudgingWithStress = async (stress, { index = null, testcase = null } 
     return;
   }
   Logger.input(result["output"]);
-  // without a checker the answer of the good solution is the only thing to
-  // compare with, so show the difference line by line
+  Logger.output(result["solutionOutput"]);
+  Logger.answer(result["expected"]);
   if (result["error"]) {
     Logger.errorOutput(result["error"]);
-    Logger.answer(result["expected"]);
-  }
-  else if (result["expected"]) {
-    Logger.diff(result["expected"], result["solutionOutput"]);
   }
 };
 // judge the solution with the testcase typed by hands, the good solution
@@ -73,13 +69,11 @@ const startStressJudging = async (stress) => {
   }
   if (result["verdict"] !== Verdict.RE) {
     Logger.input(result["output"]);
+    Logger.output(result["solutionOutput"]);
   }
+  Logger.answer(result["expected"]);
   if (result["error"]) {
     Logger.errorOutput(result["error"]);
-    Logger.answer(result["expected"]);
-  }
-  else if (result["expected"]) {
-    Logger.diff(result["expected"], result["solutionOutput"]);
   }
 };
 const startJudgeWithDebug = async (testcase, compiler) => {

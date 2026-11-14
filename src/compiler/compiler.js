@@ -6,7 +6,6 @@ import { Exception } from "../error_handler/error.js";
 import { supportedLanguages } from "./library.js";
 import { spawn, execSync } from "child_process";
 import { TestCase } from "../test/testcase.js";
-import readline from "readline";
 const successExitCode = 0;
 class Compiler {
   constructor({ filePath }) {
@@ -104,23 +103,23 @@ class Compiler {
     }
     return this.#wrapper(output, TestCase.checkOutput(testcase.output, output) ? Verdict.AC : Verdict.WA, error, exitCode);
   }
+  /**
+   * run the program with the terminal attached, so it reads stdin as it is
+   * typed (a key without enter, an interactive problem, `while (cin >> n)`)
+   * and its output shows up as soon as it flushes
+   *
+   * @returns {Promise<Number|null>} the exit code of the program
+   */
   runInteractive() {
     return new Promise((resolve) => {
       const child = spawn(this.run, [], {
         shell: true,
+        stdio: "inherit",
       });
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
-      child.stdout.pipe(process.stdout);
-      child.stderr.pipe(process.stderr);
-      rl.on("line", (line) => {
-        child.stdin.write(line + "\n");
-      });
-      child.on("exit", () => {
-        rl.close();
-        resolve();
+      // a program that waits for EOF (`while (cin >> n)`) only ends when the
+      // parent's stdin is closed, which is what Ctrl + D sends
+      child.on("exit", (code) => {
+        resolve(code);
       });
     });
   }
@@ -133,6 +132,8 @@ class Compiler {
       if (input) {
         child.stdin.write(input);
       }
+      // without this a program that reads until EOF waits for the timeout
+      child.stdin.end();
       child.stdout.pipe(process.stdout);
       child.stderr.pipe(process.stderr);
       child.on("exit", () => {
