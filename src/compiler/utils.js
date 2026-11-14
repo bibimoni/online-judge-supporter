@@ -1,14 +1,13 @@
-import fs from "fs-extra";
+import { exists, fileName, directory, extension, baseName } from "../path.js";
 const expandArgumentWithPath = (command, filePath) => {
     if (command === null) {
         return command;
     }
-    const fileName = getFileNameFromPath(filePath);
     return expandArgument(command, {
-        file: fileName,
+        file: fileName(filePath),
         relativeFile: filePath,
-        fileBase: getBaseFileName(fileName),
-        relativeDir: getDirectoryFromPath(filePath)
+        fileBase: baseName(filePath),
+        relativeDir: directory(filePath)
     });
 };
 const expandArgument = (command, { file, relativeFile, fileBase, relativeDir }) => {
@@ -18,32 +17,19 @@ const expandArgument = (command, { file, relativeFile, fileBase, relativeDir }) 
         .replaceAll("{relative_dir}", relativeDir);
 };
 const validateFilePath = (filePath) => {
-    return filePath && fs.existsSync(filePath);
-};
-const getFileNameFromPath = (filePath) => {
-    return filePath.split("/").reverse()[0];
-};
-const getDirectoryFromPath = (filePath) => {
-    return filePath.slice(0, -getFileNameFromPath(filePath).length);
-};
-const getFileExtension = (fileName) => {
-    return fileName.split(".").reverse()[0];
-};
-const getBaseFileName = (fileName) => {
-    return fileName.slice(0, -getFileExtension(fileName).length
-        - (fileName.includes(".") ? 1 : 0));
+    return filePath && exists(filePath);
 };
 export { validateFilePath };
-export { getFileNameFromPath };
-export { getFileExtension };
 export { expandArgumentWithPath };
-export { getDirectoryFromPath };
-export { getBaseFileName };
+export { fileName };
+export { extension };
+export { baseName };
+export { directory };
 export default {
     validateFilePath,
-    getFileNameFromPath,
-    getFileExtension,
     expandArgumentWithPath,
-    getDirectoryFromPath,
-    getBaseFileName
+    fileName,
+    extension,
+    baseName,
+    directory
 };

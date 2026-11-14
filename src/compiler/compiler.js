@@ -1,11 +1,7 @@
 import { Verdict } from "../test/verdict.js";
 import { loadConfigFile, getConfig } from "../config/load_config.js";
-import {
-  expandArgumentWithPath,
-  validateFilePath,
-  getFileNameFromPath,
-  getFileExtension
-} from "./utils.js";
+import { expandArgumentWithPath, validateFilePath } from "./utils.js";
+import { fileName as fileNameOf, extension as extensionOf } from "../path.js";
 import { Exception } from "../error_handler/error.js";
 import { supportedLanguages } from "./library.js";
 import { spawn, execSync } from "child_process";
@@ -148,11 +144,11 @@ class Compiler {
     if (!validateFilePath(filePath)) {
       throw Exception.noSourceFile(filePath);
     }
-    const fileName = getFileNameFromPath(filePath);
+    const fileName = fileNameOf(filePath);
     if (!fileName || fileName.length === 0) {
       throw Exception.fileNotFound(fileName);
     }
-    const extension = getFileExtension(fileName);
+    const extension = extensionOf(fileName);
     if (!extension || extension.length === 0) {
       throw Exception.invalidFileFormat(fileName);
     }

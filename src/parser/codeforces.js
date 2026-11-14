@@ -25,6 +25,22 @@ class Codeforces {
   convertToUrl(contest_id, task_id) {
     return `https://codeforces.com/contest/${contest_id}/problem/${task_id}`;
   }
+  /**
+   * read the text of an input/output block of a sample, on codeforces every
+   * line is a div, so `.text()` glues them together ("1", "2", "10" becomes
+   * "1210"), the lines have to be joined with a newline
+   *
+   * @param {cheerio.Cheerio} pre the pre element of the sample
+   * @returns {String}
+   */
+  static readSampleText(pre) {
+    if (!pre.children().length) {
+      return pre.text();
+    }
+    const lines = [];
+    pre.children().each((_, line) => lines.push($(line).text()));
+    return lines.join("\n");
+  }
   getProblem(contest_id, task_id) {
     return this.getProblemFromUrl(this.convertToUrl(contest_id, task_id));
   }
@@ -78,14 +94,14 @@ class Codeforces {
             }
           }
           else {
-            current_input = $(input).text();
+            current_input = Codeforces.readSampleText($(input));
           }
           test.input = current_input;
           small_unit_tests.forEach((small_test) => test.addMultiTestCase(small_test));
           test_data.addTestCase(test);
         });
         $(test).find('.output pre').each((index, output) => {
-          test_data.editOutput(index, $(output).text());
+          test_data.editOutput(index, Codeforces.readSampleText($(output)));
         });
       });
       return test_data;

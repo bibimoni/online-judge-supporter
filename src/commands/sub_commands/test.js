@@ -5,7 +5,7 @@ import { Exception } from "../../error_handler/error.js";
 import { Verdict } from "../../test/verdict.js";
 import { createSpinner } from "nanospinner";
 import { Creator } from "../../file_creator/creator.js";
-import { formatDirPath, captureUserInput } from "../../file_creator/utils.js";
+import { captureUserInput } from "../../file_creator/utils.js";
 import { testcaseStartIndex } from "../../config/load_config.js";
 import { Stress } from "../../test/stress.js";
 
@@ -88,13 +88,16 @@ const startJudgeWithDebug = async (testcase, compiler) => {
   await compiler.runTestWithDebug(testcase.input);
 };
 
-const addTestCaseManually = (fileName) => {
-  Creator.addTestCase(formatDirPath(path), fileName, {
+const addTestCaseManually = async (fileName) => {
+  await Creator.addTestCase(path, fileName, {
     onBeginInput: () => {
       Logger.logInfoSpinner("Enter Input (press Ctrl + C to exit)");
     },
     onBeginOutput: () => {
       Logger.logInfoSpinner("Enter Expected output (press Ctrl + C to exit)");
+    },
+    onNoInput: () => {
+      Logger.logInfoSpinner("Empty input, no testcase was added");
     },
     onFileCreate: Logger.logFileSpinner,
     onFolderCreate: Logger.logFolderSpinner,
@@ -144,7 +147,7 @@ const testCommand = (program) => {
         return;
       }
       if (options.add) {
-        addTestCaseManually(fileName);
+        await addTestCaseManually(fileName);
         return;
       }
       const testIndex = options.test;
