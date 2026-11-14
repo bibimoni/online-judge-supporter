@@ -60,18 +60,14 @@ class Stress {
     return this.generator !== null;
   }
   /**
-   * tell what is missing before the stress test can start
+   * tell what is missing before the stress test can start, the checker is not
+   * required: without one the output is compared to the answer of the good
+   * solution, see `judge`
    *
    * @returns {Error|null}
    */
   missingFiles() {
-    if (!this.isGenerated()) {
-      return this.good ? null : Exception.noGoodSolution(this.filePath);
-    }
-    if (!this.good) {
-      return Exception.noGoodSolution(this.filePath);
-    }
-    return this.checker ? null : Exception.checkerNotFound(this.filePath);
+    return this.good ? null : Exception.noGoodSolution(this.filePath);
   }
   /**
    * run one testcase and judge it, the result of a correct testcase is added
@@ -113,7 +109,12 @@ class Stress {
       }
     }
     else if (!TestCase.checkOutput(testcase.output, result["output"])) {
-      return this.#result(Verdict.WA, { "output": testcase.input, "error": result["error"], "expected": testcase.output });
+      return this.#result(Verdict.WA, {
+        "output": testcase.input,
+        "error": result["error"],
+        "expected": testcase.output,
+        "solutionOutput": result["output"],
+      });
     }
     this.#save(testcase);
     return this.#result(Verdict.AC, { "output": testcase.input });
@@ -193,12 +194,13 @@ class Stress {
       onFolderCreate: this.onFolderCreate,
     });
   }
-  #result(verdict, { output = "", error = "", expected = "" } = {}) {
+  #result(verdict, { output = "", error = "", expected = "", solutionOutput = "" } = {}) {
     return {
       verdict: verdict,
       output: output,
       error: error,
       expected: expected,
+      solutionOutput: solutionOutput,
     };
   }
 }

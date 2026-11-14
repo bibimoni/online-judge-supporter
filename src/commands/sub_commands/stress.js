@@ -17,9 +17,14 @@ const startStressing = async (stress, { count, seed, timeLimit }) => {
       continue;
     }
     Logger.input(result["output"]);
-    Logger.errorOutput(result["error"]);
-    if (result["expected"]) {
+    // without a checker the answer of the good solution is the only thing to
+    // compare with, so show the difference line by line
+    if (result["error"]) {
+      Logger.errorOutput(result["error"]);
       Logger.answer(result["expected"]);
+    }
+    else if (result["expected"]) {
+      Logger.diff(result["expected"], result["solutionOutput"]);
     }
     return;
   }
