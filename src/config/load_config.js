@@ -23,7 +23,6 @@ const outputPrefixTestName = "out";
 const testFolderPrefix = "__test_";
 const generatorMiddleName = "__Generator";
 const goodMiddleName = "__Good";
-const stressFolderPrefix = "__stress_";
 const checkerMiddleName = "__Checker";
 const testcaseStartIndex = 1;
 const timeoutDuration = 10000 * 1000; // login timeout duration (for each window)
@@ -100,7 +99,6 @@ export { multiTestFolderPrefix };
 export { testFolderPrefix };
 export { generatorMiddleName };
 export { goodMiddleName };
-export { stressFolderPrefix };
 export { checkerMiddleName };
 export { ansPrefixTestName };
 export { outputPrefixTestName };
@@ -119,7 +117,6 @@ export default {
   testFolderPrefix,
   generatorMiddleName,
   goodMiddleName,
-  stressFolderPrefix,
   checkerMiddleName,
   ansPrefixTestName,
   outputPrefixTestName,

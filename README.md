@@ -1,14 +1,14 @@
 # online-judge-supporter
 The tool for Competitive programming (CP)
----
+
 ## Installation
 ### Using npm
 ```bash
 npm i -g online-judge-supporter
 ```
-### Self install 
+### Self install
 #### Requirements
-- Git 
+- Git
 - Node.js
 #### Install
 ```bash
@@ -18,9 +18,36 @@ npm i
 npm link
 ```
 ## To use
-After install you can use it in your terminal, by using `ojs`.
-You can use `ojs --help` to know how to use it.
-### Stress testing
+After installing, you can use it in your terminal as `ojs`.
+`ojs --help` lists the commands, `ojs <command> --help` lists the options of a command.
+
+| Command | Description |
+|---------|-------------|
+| `ojs test <file>` | run the solution against the problem's testcases |
+| `ojs stress <file>` | generate testcases and judge them with a checker |
+| `ojs create <file>` | create a source file (`a-g.cpp` creates a range) |
+| `ojs download <url>` | download the testcases of a problem |
+| `ojs login <url>` | log in to a site, the cookies are reused by `download` |
+| `ojs info` | show the config and cookie paths |
+
+## Testcases
+Testcases are kept next to the solution, in `__test_<problem>/`.
+
+| File | Description |
+|------|-------------|
+| `in<index>` | input of a testcase |
+| `ans<index>` | expected output of a testcase |
+| `__multi_<index>/in<index>` | input of a small testcase, for problems with multiple tests |
+
+```bash
+ojs test a.cpp        # run every testcase
+ojs test a.cpp -t 2   # only testcase 2
+ojs test a.cpp -v     # view the testcases
+ojs test a.cpp -a     # add a testcase by hand
+ojs test a.cpp -d     # build with the debug flag and show the output/stderr as is
+```
+
+## Stress testing
 Beside the solution, a problem can provide these files (same folder, same base name):
 
 | File | Needed | Purpose |
@@ -29,22 +56,43 @@ Beside the solution, a problem can provide these files (same folder, same base n
 | `<problem>__Good.<ext>` | yes | a correct solution, its output is the answer of a testcase |
 | `<problem>__Checker.cpp` | with a generator | decides if an output is correct |
 
-The checker is invoked as `checker <input> <answer> <output> <seed>`, exit `0` means
-correct, `1` means wrong, its stderr is shown as the reason. When a testcase is wrong
-the files it used are kept in `__stress_<problem>/` so they can be inspected.
+The checker reads the input, the answer and the output of the solution from stdin,
+one after another, so it parses the input itself and reads the rest.
+Exit `0` means correct, `1` means wrong, its stderr is shown as the reason.
+
+```cpp
+// a__Checker.cpp
+#include <bits/stdc++.h>
+using namespace std;
+int main() {
+  int n; cin >> n;
+  vector<int> a(n); for (auto &x : a) cin >> x;
+  long long answer, output; cin >> answer >> output;
+  if (answer == output) return 0;
+  cerr << "expected " << answer << " but got " << output << "\n";
+  return 1;
+}
+```
 
 ```bash
-# generate random testcases and judge them with the checker
-# the testcase that fails is added to __test_<problem>/ so `ojs test` can replay it
+# generate testcases and judge them with the checker
 ojs stress a.cpp -n 1000 --seed 1 --time 2000
 
 # no generator: type a testcase once, the good solution builds the answer
 ojs test a.cpp
 
-# a testcase built by the generator (the seed is the index, so it's reproducible)
+# a testcase built by the generator, the seed is the index so it's reproducible
 ojs test a.cpp -t 1
 ```
-## Config 
-In your home director, a file named `online-judge-supporter_config.json` will appear, you can config the CLI via that file.
-### Caution 
-If you delete that file, it will revert back to the original configuration, so be careful before delete it.
+
+A testcase that passes is saved into `__test_<problem>/`, so `ojs test` can replay it later.
+`ojs stress` stops at the first testcase that isn't accepted and shows its input, the checker's
+reason and the answer of the good solution.
+
+## Config
+In your home directory, a file named `online-judge-supporter_config.json` will appear,
+you can configure the CLI via that file.
+The build/run command of each language is in it, `{file}`, `{relative_file}`, `{file_base}`
+and `{relative_dir}` are replaced with the paths of the source file.
+### Caution
+If you delete that file, it will revert to the original configuration, so be careful before deleting it.

@@ -125,9 +125,6 @@ class Logger {
       case Verdict.AC:
         Logger.logSuccessSpinner(chalk.green("AC"), { spinner: spinner });
         break;
-      case Verdict.RJ:
-        Logger.logErrorSpinner(chalk.yellow("RJ"), { spinner: spinner });
-        break;
       case Verdict.CRASH:
         Logger.logErrorSpinner(chalk.red("CRASH"), { spinner: spinner });
         break;

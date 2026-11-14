@@ -83,7 +83,6 @@ class Creator {
    */
   static createProblem(default_path, param, { on_file_created = () => { } }) {
     if (!problem_regex.test(param)) {
-      console.log(param);
       throw Exception.invalidFile(param);
     }
     let extension_file = param.split(".")[1];

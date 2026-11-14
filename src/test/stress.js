@@ -5,7 +5,7 @@ import { Verdict } from "../test/verdict.js";
 import { Generator } from "../file_creator/generator.js";
 import { Checker } from "../file_creator/checker.js";
 import { Creator } from "../file_creator/creator.js";
-import { inputPrefixTestName, goodMiddleName, stressFolderPrefix } from "../config/load_config.js";
+import { goodMiddleName } from "../config/load_config.js";
 import { getFileNameFromPath, getBaseFileName, getDirectoryFromPath } from "../compiler/utils.js";
 import { formatDirPath } from "../file_creator/utils.js";
 import { Exception } from "../error_handler/error.js";
@@ -29,10 +29,6 @@ class Stress {
     this.good = files["good"] ? new Compiler({ filePath: files["good"] }) : null;
     this.onFileCreate = onFileCreate;
     this.onFolderCreate = onFolderCreate;
-    // the checker reads these files, they are kept when a testcase is wrong
-    this.answerDir = `${this.dir}${stressFolderPrefix}${getBaseFileName(getFileNameFromPath(this.filePath))}/`;
-    this.answerPath = `${this.answerDir}answer.txt`;
-    this.outputPath = `${this.answerDir}output.txt`;
   }
   /**
    * find the files needed for the stress test, they are all placed next to the
@@ -116,7 +112,7 @@ class Stress {
     // the checker owns the verdict when the problem has one, it can accept
     // outputs that a plain comparison rejects (floats, multiple answers)
     if (this.checker) {
-      const accepted = await this.#judgeWithChecker(testcase, result["output"], seed);
+      const accepted = await this.#judgeWithChecker(testcase, result["output"]);
       if (accepted["verdict"] !== Verdict.AC) {
         return accepted;
       }
@@ -126,6 +122,21 @@ class Stress {
     }
     this.#save(testcase);
     return this.#result(Verdict.AC, { "output": testcase.input });
+  }
+  /**
+   * build a testcase without judging it, used by `test -d` which only shows
+   * what the program prints
+   *
+   * @param {Object} options same as `judge`
+   * @returns {Object|null} { input, output } or null when the generator failed
+   */
+  async generate({ index = null, testcase = null } = {}) {
+    if (testcase !== null) {
+      const answer = await this.good.runTest({ input: testcase["input"] }, { multiTest: true });
+      return crashed(answer) ? null : { input: testcase["input"], output: answer["output"] };
+    }
+    const generated = await this.#generate(index === null ? null : parseInt(index));
+    return crashed(generated) ? null : { input: generated["output"], output: undefined };
   }
   /**
    * run a program and count a timeout as its verdict
@@ -157,36 +168,27 @@ class Stress {
     return await this.generator.runTest({}, { multiTest: true, argv: [seed.toString()] });
   }
   /**
-   * the checker compares the output of the solution with the answer
-   * of the good solution, the answer files are kept when it fails
+   * the checker reads the testcase (input, answer and output of the solution,
+   * in that order) from stdin, it parses the input itself so it knows where
+   * each part ends. exit code 0 means correct, 1 means wrong.
    *
    * @param {String} output of the solution
    * @returns {Object} verdict
    */
-  async #judgeWithChecker(testcase, output, seed) {
-    fs.ensureDirSync(this.answerDir);
-    let inputPath = `${this.answerDir}${inputPrefixTestName}1`;
-    fs.writeFileSync(inputPath, testcase.input);
-    fs.writeFileSync(this.answerPath, testcase.output);
-    fs.writeFileSync(this.outputPath, output);
-    let checkerArgs = [inputPath, this.answerPath, this.outputPath];
-    if (seed !== null) {
-      checkerArgs.push(seed.toString());
-    }
-    let result = await this.checker.runTest({}, { multiTest: true, argv: checkerArgs });
+  async #judgeWithChecker(testcase, output) {
+    let stdin = `${testcase.input}${testcase.output}${output}`;
+    let result = await this.checker.runTest({ input: stdin }, { multiTest: true });
     // the checker exits with 1 when the output is wrong, that's a verdict
     // not a crash, only a checker that can't exit at all (TLE) has no verdict
     if (result["verdict"] === Verdict.TLE) {
       return this.#result(Verdict.CRASH, { "output": testcase.input, "error": result["error"] });
     }
     if (result["exitCode"] === 0) {
-      fs.removeSync(this.answerDir);
       return this.#result(Verdict.AC, { "output": testcase.input });
     }
     return this.#result(Verdict.WA, {
       "output": testcase.input,
       "error": result["error"],
-      "rejected": this.answerDir,
       "expected": testcase.output,
     });
   }
@@ -196,13 +198,12 @@ class Stress {
       onFolderCreate: this.onFolderCreate,
     });
   }
-  #result(verdict, { output = "", error = "", expected = "", rejected = "" } = {}) {
+  #result(verdict, { output = "", error = "", expected = "" } = {}) {
     return {
       verdict: verdict,
       output: output,
       error: error,
       expected: expected,
-      rejected: rejected,
     };
   }
 }

@@ -21,9 +21,6 @@ const startStressing = async (stress, { count, seed, timeLimit }) => {
     if (result["expected"]) {
       Logger.answer(result["expected"]);
     }
-    if (result["rejected"]) {
-      Logger.logInfoSpinner(`Rejected testcase is saved in ${result["rejected"]}`);
-    }
     return;
   }
 };

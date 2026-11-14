@@ -53,9 +53,6 @@ const startJudgingWithStress = async (stress, { index = null, testcase = null } 
   if (result["expected"]) {
     Logger.answer(result["expected"]);
   }
-  if (result["rejected"]) {
-    Logger.logInfoSpinner(`Rejected testcase is saved in ${result["rejected"]}`);
-  }
 };
 // judge the solution with the testcase typed by hands, the good solution
 // builds the answer so the testcase is saved and can be found again
@@ -75,9 +72,6 @@ const startStressJudging = async (stress) => {
   Logger.errorOutput(result["error"]);
   if (result["expected"]) {
     Logger.answer(result["expected"]);
-  }
-  if (result["rejected"]) {
-    Logger.logInfoSpinner(`Rejected testcase is saved in ${result["rejected"]}`);
   }
 };
 const startJudgeWithDebug = async (testcase, compiler) => {
@@ -166,7 +160,7 @@ const testCommand = (program) => {
       }
       // a testcase typed by hands, or a testcase built by the generator, see Stress
       let stress = null;
-      if (!options.interactive) {
+      if (!options.interactive && !options.view && !options.add) {
         try {
           stress = Stress.find(filePath);
         } catch (_) {
@@ -200,9 +194,20 @@ const testCommand = (program) => {
           Logger.logVerdict(Verdict.CE);
           return;
         }
+        const generated = testcases[testEntry]?.isMultiTest ? null : testcases[testEntry];
+        if (options.debug) {
+          // show the program's own output and stderr instead of judging it
+          const built = await stress.generate({ index: testIndex, testcase: generated });
+          if (built === null) {
+            Logger.logVerdict(Verdict.CRASH);
+            return;
+          }
+          await startJudgeWithDebug({ ...built, fileName: `generated (seed ${testIndex})` }, compiler);
+          return;
+        }
         await startJudgingWithStress(stress, {
           index: testIndex,
-          testcase: testcases[testEntry]?.isMultiTest ? null : testcases[testEntry],
+          testcase: generated,
         });
         return;
       }
