@@ -8,10 +8,18 @@ import { createSpinner } from "nanospinner";
 const defaultTestCaseCount = 1000;
 const startStressing = async (stress, { count, seed, timeLimit }) => {
   // one spinner for the whole run, an accepted testcase only updates its text
-  // so a long stress test doesn't flood the terminal with AC lines
+  // so a long stress test doesn't flood the terminal with AC lines.
+  // start() resets the spinner and starts another loop timer, so only the
+  // first testcase starts it and the rest update the text
   const spinner = createSpinner();
   for (let index = 1; index <= count; index++) {
-    spinner.start({ text: Logger.info(`Judging testcase ${index}/${count}`) });
+    const text = Logger.info(`Judging testcase ${index}/${count}`);
+    if (index === 1) {
+      spinner.start({ text: text });
+    }
+    else {
+      spinner.update({ text: text });
+    }
     const result = await stress.judge({
       seed: seed === null ? null : seed + index - 1,
       timeLimit: timeLimit,
