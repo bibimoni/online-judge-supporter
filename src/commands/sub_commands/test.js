@@ -96,6 +96,9 @@ const addTestCaseManually = async (fileName) => {
     onBeginOutput: () => {
       Logger.logInfoSpinner("Enter Expected output (press Ctrl + C to exit)");
     },
+    onNoInput: () => {
+      Logger.logInfoSpinner("Empty input, no testcase was added");
+    },
     onFileCreate: Logger.logFileSpinner,
     onFolderCreate: Logger.logFolderSpinner,
   });

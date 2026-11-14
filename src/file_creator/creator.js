@@ -183,11 +183,17 @@ class Creator {
    * @param {Object} options, there are many options that will be called
    * on certain state of the function
    */
-  static async addTestCase(filePath, fileName, { onBeginInput = () => { }, onEndInput = () => { }, onBeginOutput = () => { }, onEndOutput = () => { }, onFileCreate = () => { }, onFolderCreate = () => { }, } = {}) {
+  static async addTestCase(filePath, fileName, { onBeginInput = () => { }, onEndInput = () => { }, onBeginOutput = () => { }, onEndOutput = () => { }, onNoInput = () => { }, onFileCreate = () => { }, onFolderCreate = () => { }, } = {}) {
     let test = new TestCase();
     onBeginInput();
     test.input = await captureUserInput();
     onEndInput();
+    // an empty input is not a testcase, don't write it and don't ask for the
+    // expected output, so an accidental enter doesn't create a test file
+    if (test.input.trim().length === 0) {
+      onNoInput();
+      return;
+    }
     onBeginOutput();
     test.output = await captureUserInput();
     onEndOutput();
