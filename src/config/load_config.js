@@ -21,6 +21,9 @@ const ansPrefixTestName = "ans";
 const inputPrefixTestName = "in";
 const outputPrefixTestName = "out";
 const testFolderPrefix = "__test_";
+const generatorMiddleName = "__Generator";
+const goodMiddleName = "__Good";
+const checkerMiddleName = "__Checker";
 const testcaseStartIndex = 1;
 const timeoutDuration = 10000 * 1000; // login timeout duration (for each window)
 
@@ -94,6 +97,9 @@ const loadCookieJar = (site) => {
 export { mode };
 export { multiTestFolderPrefix };
 export { testFolderPrefix };
+export { generatorMiddleName };
+export { goodMiddleName };
+export { checkerMiddleName };
 export { ansPrefixTestName };
 export { outputPrefixTestName };
 export { inputPrefixTestName };
@@ -109,6 +115,9 @@ export default {
   mode,
   multiTestFolderPrefix,
   testFolderPrefix,
+  generatorMiddleName,
+  goodMiddleName,
+  checkerMiddleName,
   ansPrefixTestName,
   outputPrefixTestName,
   inputPrefixTestName,

@@ -56,6 +56,15 @@ class Exception {
   static errorWhenFetch(url) {
     return new Error(`An error occurred when try to fetch from ${url} (try to login or provide correct url)`);
   }
+  static generatorNotFound(fileName) {
+    return new Error(`No generator found for ${fileName}, please provide a testcase with -a/--add`);
+  }
+  static checkerNotFound(fileName) {
+    return new Error(`No checker found for ${fileName}, please provide <problem>__Checker.cpp next to the generator`);
+  }
+  static noGoodSolution(fileName) {
+    return new Error(`No good solution found for ${fileName}, please provide <problem>__Good.<extension>`);
+  }
 }
 export { Exception };
 export default {

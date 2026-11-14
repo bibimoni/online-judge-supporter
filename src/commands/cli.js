@@ -6,6 +6,7 @@ import { infoCommand } from "./sub_commands/info.js";
 import package$0 from "../../package.json" with { type: "json" };
 import { Logger } from "./logger.js";
 import { createFileCommand } from "./sub_commands/creator.js";
+import { stressCommand } from "./sub_commands/stress.js";
 const program = new Command();
 const version = package$0.version;
 
@@ -25,6 +26,7 @@ const setupCli = () => {
   testCommand(program);
   loginCommand(program);
   createFileCommand(program);
+  stressCommand(program);
   program.parse(process.argv);
 };
 export { setupCli };

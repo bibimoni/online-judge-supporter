@@ -22,6 +22,15 @@ class Compiler {
     this.debug = expandArgumentWithPath(this.settings["debug"], filePath);
     this.filePath = filePath;
   }
+  /**
+   * expand placeholders in an argument (or an array of arguments) of the program
+   *
+   * @param {String|Array<String>} argv
+   * @returns {Array<String>} arguments that can be given to runTest
+   */
+  expandArguments(argv) {
+    return [].concat(argv ?? []).map((arg) => expandArgumentWithPath(arg, this.filePath));
+  }
   buildFile({ debug }) {
     const buildCmd = debug ? this.debug : this.build;
     if (buildCmd && buildCmd.length > 0) {
@@ -34,10 +43,12 @@ class Compiler {
     }
   }
   // wrap the output for runTest (a helper function)
-  #wrapper(output, verdict) {
+  #wrapper(output, verdict, error = "", exitCode = null) {
     return {
       output: output,
+      error: error,
       verdict: verdict,
+      exitCode: exitCode,
     };
   }
   /**
@@ -45,21 +56,30 @@ class Compiler {
    *
    * @param {TestCase} testcase
    * @param {Object} option, if multiTest is true,
-   * it will returns UNKNOWN verdict.
-   * @returns {Object} result, returns Verdict in "verdict" and output as "output".
+   * it will returns UNKNOWN verdict. argv (an array of strings) will be
+   * passed to the program as arguments.
+   * @returns {Object} result, returns Verdict in "verdict", output as "output",
+   * the stderr of the program as "error" and the exit code as "exitCode".
+   * argv is used as it is, so expand it first if you need placeholders.
    */
-  async runTest(testcase, { multiTest = false } = {}) {
+  async runTest(testcase, { multiTest = false, argv = [] } = {}) {
     const input = testcase.input;
-    const child = spawn(this.run, [], {
+    const child = spawn(this.run, argv, {
       shell: true,
     });
     let output = "";
+    let error = "";
     child.stdout.on("data", (data) => {
       output += data.toString();
+    });
+    child.stderr.on("data", (data) => {
+      error += data.toString();
     });
     if (input) {
       child.stdin.write(input);
     }
+    // without this a program that reads until EOF waits for the timeout
+    child.stdin.end();
     let timeoutId = null;
     let exitCode = null;
     try {
@@ -75,18 +95,18 @@ class Compiler {
       exitCode = await Promise.race([runPromise, timeoutPromise]);
     }
     catch (_) {
-      return this.#wrapper(output, Verdict.TLE);
+      return this.#wrapper(output, Verdict.TLE, error, exitCode);
     }
     finally {
       clearTimeout(timeoutId);
     }
     if (exitCode !== successExitCode) {
-      return this.#wrapper(output, Verdict.RE);
+      return this.#wrapper(output, Verdict.RE, error, exitCode);
     }
     if (multiTest) {
-      return this.#wrapper(output, Verdict.UNKNOWN);
+      return this.#wrapper(output, Verdict.UNKNOWN, error, exitCode);
     }
-    return this.#wrapper(output, TestCase.checkOutput(testcase.output, output) ? Verdict.AC : Verdict.WA);
+    return this.#wrapper(output, TestCase.checkOutput(testcase.output, output) ? Verdict.AC : Verdict.WA, error, exitCode);
   }
   runInteractive() {
     return new Promise((resolve) => {
