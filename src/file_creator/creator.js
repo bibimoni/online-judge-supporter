@@ -9,18 +9,15 @@ import {
   mode,
   testcaseStartIndex,
 } from "../config/load_config.js";
-import { formatDirPath, captureUserInput } from "./utils.js";
+import { captureUserInput } from "./utils.js";
 import {
   multiTestFolderPrefix,
   inputPrefixTestName,
   ansPrefixTestName,
   testFolderPrefix,
 } from "../config/load_config.js";
-import {
-  getFileNameFromPath,
-  getBaseFileName,
-  getDirectoryFromPath
-} from '../compiler/utils.js';
+import path from "node:path";
+import { join, directory, baseName, testFile } from "../path.js";
 const problem_regex = /((^[a-z]-[a-z])|(^[A-Z]-[A-Z])|(^[\w]+))\.([a-z]+)$/;
 
 class Creator {
@@ -37,11 +34,12 @@ class Creator {
     }
     let extension_file = param.split(".")[1];
 
-    if (!fs.existsSync(`${default_path}/${contest_id}`)) {
+    const contestFolder = join(default_path, contest_id);
+    if (!fs.existsSync(contestFolder)) {
       try {
-        fs.mkdirSync(`${default_path}/${contest_id}`);
+        fs.mkdirSync(contestFolder);
       } catch {
-        throw Exception.canNotCreateFolder(`${default_path}/${contest_id}`);
+        throw Exception.canNotCreateFolder(contestFolder);
       }
     }
     loadConfigFile();
@@ -51,30 +49,42 @@ class Creator {
     }
     let config_languages = config["extension"][extension_file]["template"];
 
-    let file_created = [];
+    let file_created = Creator.#writeProblemFiles(contestFolder, param, extension_file, config_languages);
+    on_file_created(file_created);
+  }
+  /**
+   * write the source file(s) of a problem into a folder, `a-g.cpp` writes
+   * one file per letter, `a.cpp` writes a single file
+   *
+   * @param {String} folder to write the files into
+   * @param {String} param problem name with extension (a.cpp, a-g.cpp)
+   * @param {String} extension_file
+   * @param {String} template path of the template file, empty for no template
+   * @returns {[...String]} names of the created files
+   */
+  static #writeProblemFiles(folder, param, extension_file, template) {
+    let names = [];
     if (param.search("-") === -1) {
-      file_created.push(`${param.split(".")[0]}.${extension_file}`);
-      if (config_languages === "") {
-        fs.writeFileSync(`${default_path}/${contest_id}/${param.split(".")[0]}.${extension_file}`, '');
-      } else {
-        fs.copyFileSync(`${config_languages}`, `${default_path}/${contest_id}/${param.split(".")[0]}.${extension_file}`);
-      }
+      names.push(`${param.split(".")[0]}.${extension_file}`);
     } else {
       param = param.split(".")[0];
       if (param.split("-")[0].charCodeAt(0) > param.split("-")[1].charCodeAt(0)) {
         throw Exception.canNotCreateFile();
       }
       for (let i = param.split("-")[0].charCodeAt(0); i <= param.split("-")[1].charCodeAt(0); i++) {
-        file_created.push(`${String.fromCharCode(i)}.${extension_file}`);
-        if (config_languages === "") {
-          fs.writeFileSync(`${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`, '');
-        } else {
-          fs.copyFileSync(`${config_languages}`, `${default_path}/${contest_id}/${String.fromCharCode(i)}.${extension_file}`);
-        }
+        names.push(`${String.fromCharCode(i)}.${extension_file}`);
       }
     }
-
-    on_file_created(file_created);
+    fs.ensureDirSync(folder, mode);
+    names.forEach((name) => {
+      const filePath = join(folder, name);
+      if (template === "") {
+        fs.writeFileSync(filePath, '');
+      } else {
+        fs.copyFileSync(template, filePath);
+      }
+    });
+    return names;
   }
   /**
    * Creates a file for a specific problem based on the provided parameters.
@@ -92,29 +102,7 @@ class Creator {
       throw Exception.languageNotFound(extension_file);
     }
     let config_languages = config["extension"][extension_file]["template"];
-    let file_created = [];
-    if (param.search("-") === -1) {
-      file_created.push(`${param.split(".")[0]}.${extension_file}`);
-      if (config_languages === "") {
-        fs.writeFileSync(`${default_path}/${param.split(".")[0]}.${extension_file}`, '');
-      } else {
-        fs.copyFileSync(`${config_languages}`, `${default_path}/${param.split(".")[0]}.${extension_file}`);
-      }
-    } else {
-      param = param.split(".")[0];
-      if (param.split("-")[0].charCodeAt(0) > param.split("-")[1].charCodeAt(0)) {
-        throw Exception.canNotCreateFile();
-      }
-      for (let i = param.split("-")[0].charCodeAt(0); i <= param.split("-")[1].charCodeAt(0); i++) {
-        file_created.push(`${String.fromCharCode(i)}.${extension_file}`);
-        if (config_languages === "") {
-          fs.writeFileSync(`${default_path}/${String.fromCharCode(i)}.${extension_file}`, '');
-        } else {
-          fs.copyFileSync(`${config_languages}`, `${default_path}/${String.fromCharCode(i)}.${extension_file}`);
-        }
-      }
-    }
-
+    let file_created = Creator.#writeProblemFiles(default_path, param, extension_file, config_languages);
     on_file_created(file_created);
   }
 
@@ -130,7 +118,6 @@ class Creator {
    * get invoked when file or folder is created, use logger please.
    */
   static async generateTestFile(testDir, problemData, { fileName = "", onFileCreate = () => { }, onFolderCreate = () => { } } = {}) {
-    testDir = formatDirPath(testDir);
     let problemShortName;
     if (!fileName || fileName.length === 0) {
       problemShortName = Crawler.getProblemShortName(problemData.name).toLowerCase();
@@ -138,35 +125,33 @@ class Creator {
     else {
       problemShortName = fileName;
     }
-    // await createFolder(testDir, problemShortName);
-    const testFolderPath = `${testDir}${testFolderPrefix}${problemShortName}`;
+    // the solution file name isn't known here, only the folder and the name it
+    // gets from the caller, so build the paths from them
+    const testFolderPath = join(testDir, `${testFolderPrefix}${problemShortName}`);
+    const shown = (testPath) => path.relative(testDir, testPath);
     await fs.ensureDir(testFolderPath, mode);
     let index = testcaseStartIndex;
     problemData.testCases.forEach((test) => {
-      // find testcase number
-      let multiInputPath = `${testFolderPath}/${multiTestFolderPrefix}${index}/`;
-      let inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
-      let outputPath = `${testFolderPath}/${ansPrefixTestName}${index}`;
-      while (fs.existsSync(multiInputPath) ||
-        fs.existsSync(inputPath) ||
-        (fs.existsSync(outputPath) && test.isMultiTest)) {
+      // find a testcase number that isn't taken yet
+      const multiInputPath = () => join(testFolderPath, `${multiTestFolderPrefix}${index}`);
+      const inputPath = () => join(testFolderPath, `${inputPrefixTestName}${index}`);
+      const outputPath = () => join(testFolderPath, `${ansPrefixTestName}${index}`);
+      while (fs.existsSync(multiInputPath()) ||
+        fs.existsSync(inputPath()) ||
+        (fs.existsSync(outputPath()) && test.isMultiTest)) {
         index += 1;
-        multiInputPath = `${testFolderPath}/${multiTestFolderPrefix}${index}/`;
-        inputPath = `${testFolderPath}/${inputPrefixTestName}${index}`;
-        outputPath = `${testFolderPath}/${ansPrefixTestName}${index}`;
       }
-      fs.writeFileSync(inputPath, test.input);
-      onFileCreate(`${testFolderPrefix}${problemShortName}/${inputPrefixTestName}${index}`, test.input, "input");
-      fs.writeFileSync(outputPath, test.output);
-      onFileCreate(`${testFolderPrefix}${problemShortName}/${ansPrefixTestName}${index}`, test.output, "output");
+      fs.writeFileSync(inputPath(), test.input);
+      onFileCreate(shown(inputPath()), test.input, "input");
+      fs.writeFileSync(outputPath(), test.output);
+      onFileCreate(shown(outputPath()), test.output, "output");
       if (test.isMultiTest) {
-        fs.ensureDirSync(multiInputPath, mode);
-        onFolderCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/`);
+        fs.ensureDirSync(multiInputPath(), mode);
+        onFolderCreate(shown(multiInputPath()));
         test.multiTestCase.forEach((mutliTest, multiTestIndex) => {
-          const multiTestPath = `${multiInputPath}${inputPrefixTestName}${multiTestIndex + testcaseStartIndex}`;
+          const multiTestPath = testFile(multiInputPath(), inputPrefixTestName, multiTestIndex + testcaseStartIndex);
           fs.writeFileSync(multiTestPath, mutliTest.input);
-          // multiTest trigger
-          // onFileCreate(`${testFolderPrefix}${problemShortName}/${multiTestFolderPrefix}${index}/${inputPrefixTestName}${multiTestIndex}`, '', 'multitest input');
+          onFileCreate(shown(multiTestPath), mutliTest.input, "multitest input");
         });
       }
     });
@@ -183,8 +168,8 @@ class Creator {
    * get invoked when file or folder is created. use logger please.
    */
   static async generateTestFileWithFilePath(filePath, problemData, { onFileCreate = () => { }, onFolderCreate = () => { } } = {}) {
-    return await Creator.generateTestFile(getDirectoryFromPath(filePath), problemData, {
-      fileName: getBaseFileName(getFileNameFromPath(filePath)),
+    return await Creator.generateTestFile(directory(filePath), problemData, {
+      fileName: baseName(filePath),
       onFileCreate,
       onFolderCreate,
     });
@@ -206,7 +191,7 @@ class Creator {
     onBeginOutput();
     test.output = await captureUserInput();
     onEndOutput();
-    Creator.addTestCaseToFolder(filePath, fileName, test, {
+    await Creator.addTestCaseToFolder(filePath, fileName, test, {
       onFileCreate: onFileCreate,
       onFolderCreate: onFolderCreate,
     });
@@ -220,11 +205,11 @@ class Creator {
    * @param {Object} options onFileCreate and onFolderCreate will get invoked when
    * file or folder is created. use logger please.
    */
-  static addTestCaseToFolder(filePath, fileName, test, { onFileCreate = () => { }, onFolderCreate = () => { } } = {}) {
+  static async addTestCaseToFolder(filePath, fileName, test, { onFileCreate = () => { }, onFolderCreate = () => { } } = {}) {
     let problemData = new ProblemData();
     problemData.addTestCase(test);
-    Creator.generateTestFileWithFilePath(`${filePath}${fileName}`, problemData, {
-      fileName: fileName,
+    await Creator.generateTestFileWithFilePath(join(filePath, fileName), problemData, {
+      fileName: baseName(fileName),
       onFileCreate: onFileCreate,
       onFolderCreate: onFolderCreate,
     });

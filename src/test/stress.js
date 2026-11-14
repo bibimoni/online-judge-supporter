@@ -5,8 +5,8 @@ import { Generator } from "../file_creator/generator.js";
 import { Checker } from "../file_creator/checker.js";
 import { Creator } from "../file_creator/creator.js";
 import { goodMiddleName } from "../config/load_config.js";
-import { getFileNameFromPath, getDirectoryFromPath } from "../compiler/utils.js";
-import { formatDirPath, findCompanionFile } from "../file_creator/utils.js";
+import { fileName, directory, join } from "../path.js";
+import { findCompanionFile } from "../file_creator/utils.js";
 import { Exception } from "../error_handler/error.js";
 
 // the generator, the checker and the good solution have no expected output,
@@ -38,11 +38,9 @@ class Stress {
    * @returns {Stress}
    */
   static find(filePath) {
-    // a bare file name has no directory, so it's in the current directory
-    let dir = formatDirPath(getDirectoryFromPath(filePath)) || "./";
     return new Stress({
       filePath: filePath,
-      dir: dir,
+      dir: directory(filePath),
       solution: new Compiler({ filePath: filePath }),
       generator: Generator.find(filePath),
       checker: Checker.find(filePath),
@@ -189,7 +187,7 @@ class Stress {
     });
   }
   #save(testcase) {
-    Creator.addTestCaseToFolder(this.dir, getFileNameFromPath(this.filePath), testcase, {
+    Creator.addTestCaseToFolder(this.dir, fileName(this.filePath), testcase, {
       onFileCreate: this.onFileCreate,
       onFolderCreate: this.onFolderCreate,
     });

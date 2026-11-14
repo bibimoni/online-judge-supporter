@@ -1,16 +1,16 @@
 import fs from "fs-extra";
 import { homedir } from "os";
 import * as toughCookie from "tough-cookie";
-let configName = "online-judge-supporter_config.json";
-let configDirName = "config-online-judge-supporter";
-let configDir = `${homedir()}/${configName}`;
-let configFolder = `${homedir()}/.local/share/${configDirName}/`;
-const defaultConfigName = "_default_config.json";
-import { dirname, join } from 'node:path';
+import path, { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+const configName = "online-judge-supporter_config.json";
+const configDirName = "config-online-judge-supporter";
+const configDir = join(homedir(), configName);
+const configFolder = join(homedir(), ".local", "share", configDirName);
+const defaultConfigName = "_default_config.json";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const defaultConfigDir = `${dirname(dirname(__dirname))}/${defaultConfigName}`;
+const defaultConfigDir = join(dirname(dirname(__dirname)), defaultConfigName);
 
 
 const { CookieJar } = toughCookie;
@@ -71,11 +71,11 @@ const saveCookie = (site, cookies) => {
     jar.setCookieSync(str, `https://${ck.domain}`);
   });
   const serialized = jar.serializeSync();
-  const cookieFilePath = `${configFolder}${site}.json`;
+  const cookieFilePath = join(configFolder, `${site}.json`);
   fs.writeFileSync(cookieFilePath, JSON.stringify(serialized, null, 2), 'utf-8');
 };
 const loadCookie = (site) => {
-  const cookieFilePath = `${configFolder}${site}.json`;
+  const cookieFilePath = join(configFolder, `${site}.json`);
   try {
     const text = fs.readFileSync(cookieFilePath, 'utf-8');
     const cookies = JSON.parse(text);

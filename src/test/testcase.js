@@ -2,9 +2,9 @@ import { TokenType, Token } from "./token.js";
 import { getConfig, loadConfigFile } from "../config/load_config.js";
 import { Exception } from "../error_handler/error.js";
 import fs from "fs-extra";
-import path from "path";
-import { mode, ansPrefixTestName, inputPrefixTestName, multiTestFolderPrefix, testFolderPrefix } from "../config/load_config.js";
-import { validateFilePath, getFileNameFromPath, getDirectoryFromPath, getBaseFileName } from "../compiler/utils.js";
+import { mode, ansPrefixTestName, inputPrefixTestName, multiTestFolderPrefix } from "../config/load_config.js";
+import { validateFilePath } from "../compiler/utils.js";
+import { join, fileName as fileNameOf, testFolder } from "../path.js";
 import { getTestIndexFromTestName } from "./utils.js";
 
 class TestCase {
@@ -131,11 +131,11 @@ class TestCase {
     if (!validateFilePath(filePath)) {
       throw Exception.noSourceFile(filePath);
     }
-    const fileName = getFileNameFromPath(filePath);
+    const fileName = fileNameOf(filePath);
     if (!fileName || fileName.length === 0) {
       throw Exception.fileNotFound(fileName);
     }
-    const testCaseFolder = `${getDirectoryFromPath(filePath)}${testFolderPrefix}${getBaseFileName(fileName)}/`;
+    const testCaseFolder = testFolder(filePath);
     let testcases = {};
     const inputRegex = new RegExp(`^${inputPrefixTestName}([0-9]+)$`);
     const ansRegex = new RegExp(`^${ansPrefixTestName}([0-9]+)$`);
@@ -162,7 +162,7 @@ class TestCase {
         if (indexFile === undefined) {
           return;
         }
-        const multiTestFolder = `${testCaseFolder}${file.name}/`;
+        const multiTestFolder = join(testCaseFolder, file.name);
         fs.readdirSync(multiTestFolder, { withFileTypes: true }).forEach((file) => {
           if (file.isFile()) {
             const input = TestCase.#readTestContent(file, inputRegex);
@@ -178,8 +178,7 @@ class TestCase {
   }
   static #readTestContent(file, regex) {
     if (regex.test(file.name)) {
-      // FUCK! Why did they change from path to parentPath
-      const filePath = `${path.normalize(file.parentPath)}${file.name}`;
+      const filePath = join(file.parentPath, file.name);
       try {
         return fs.readFileSync(filePath, { encoding: "utf8" });
       }
