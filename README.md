@@ -54,8 +54,9 @@ Beside the solution, a problem can provide these files (same folder, same base n
 |------|--------|---------|
 | `<problem>__Generator.<ext>` | to generate testcases | prints a random testcase, the seed is the first argument |
 | `<problem>__Good.<ext>` | yes | a correct solution, its output is the answer of a testcase |
-| `<problem>__Checker.cpp` | with a generator | decides if an output is correct |
+| `<problem>__Checker.<ext>` | with a generator | decides if an output is correct |
 
+The three files can be written in any language in the config (`.cpp`, `.py`, `.rs`, `.java`, `.c`).
 The checker reads the input, the answer and the output of the solution from stdin,
 one after another, so it parses the input itself and reads the rest.
 Exit `0` means correct, `1` means wrong, its stderr is shown as the reason.
