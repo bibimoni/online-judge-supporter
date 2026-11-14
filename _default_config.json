@@ -2,6 +2,7 @@
   "testComparatorExperiment": false,
   "contestFolder": "",
   "timeout": 3000,
+  "stressTestCaseCount": 1000,
   
   "__comments": [
     "run settings",
