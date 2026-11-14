@@ -54,9 +54,12 @@ Beside the solution, a problem can provide these files (same folder, same base n
 |------|--------|---------|
 | `<problem>__Generator.<ext>` | to generate testcases | prints a random testcase, the seed is the first argument |
 | `<problem>__Good.<ext>` | yes | a correct solution, its output is the answer of a testcase |
-| `<problem>__Checker.<ext>` | with a generator | decides if an output is correct |
+| `<problem>__Checker.<ext>` | no | decides if an output is correct, without one the output is compared with the answer |
 
-The three files can be written in any language in the config (`.cpp`, `.py`, `.rs`, `.java`, `.c`).
+The files can be written in any language in the config (`.cpp`, `.py`, `.rs`, `.java`, `.c`).
+Without a checker the output of the solution is compared with the answer of the good
+solution, the same way `ojs test` compares a testcase.
+
 The checker reads the input, the answer and the output of the solution from stdin,
 one after another, so it parses the input itself and reads the rest.
 Exit `0` means correct, `1` means wrong, its stderr is shown as the reason.
@@ -87,8 +90,8 @@ ojs test a.cpp -t 1
 ```
 
 A testcase that passes is saved into `__test_<problem>/`, so `ojs test` can replay it later.
-`ojs stress` stops at the first testcase that isn't accepted and shows its input, the checker's
-reason and the answer of the good solution.
+`ojs stress` stops at the first testcase that isn't accepted and shows its input, the answer of the
+good solution and either the checker's reason or a line by line difference.
 
 ## Config
 In your home directory, a file named `online-judge-supporter_config.json` will appear,

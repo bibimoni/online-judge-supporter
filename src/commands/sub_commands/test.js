@@ -49,9 +49,14 @@ const startJudgingWithStress = async (stress, { index = null, testcase = null } 
     return;
   }
   Logger.input(result["output"]);
-  Logger.errorOutput(result["error"]);
-  if (result["expected"]) {
+  // without a checker the answer of the good solution is the only thing to
+  // compare with, so show the difference line by line
+  if (result["error"]) {
+    Logger.errorOutput(result["error"]);
     Logger.answer(result["expected"]);
+  }
+  else if (result["expected"]) {
+    Logger.diff(result["expected"], result["solutionOutput"]);
   }
 };
 // judge the solution with the testcase typed by hands, the good solution
@@ -69,9 +74,12 @@ const startStressJudging = async (stress) => {
   if (result["verdict"] !== Verdict.RE) {
     Logger.input(result["output"]);
   }
-  Logger.errorOutput(result["error"]);
-  if (result["expected"]) {
+  if (result["error"]) {
+    Logger.errorOutput(result["error"]);
     Logger.answer(result["expected"]);
+  }
+  else if (result["expected"]) {
+    Logger.diff(result["expected"], result["solutionOutput"]);
   }
 };
 const startJudgeWithDebug = async (testcase, compiler) => {
@@ -174,10 +182,7 @@ const testCommand = (program) => {
           return;
         }
       }
-      if (stress?.isGenerated() && testEntry === null) {
-        Logger.logErrorSpinner("The testcase is built by the generator, please use -t/-test <index>");
-        return;
-      }
+      // typing a testcase is always allowed, -t is only for the ones built by the generator
       if (stress?.isGenerated() && options.multi_test) {
         Logger.logErrorSpinner("A testcase built by the generator has no multitest, please remove -m/--multi_test");
         return;
@@ -188,8 +193,8 @@ const testCommand = (program) => {
         try {
           compiler.buildFile({ debug: options.debug });
           stress.good.buildFile({ debug: false });
-          stress.generator.buildFile({ debug: false });
-          stress.checker.buildFile({ debug: false });
+          stress.generator?.buildFile({ debug: false });
+          stress.checker?.buildFile({ debug: false });
         } catch (_) {
           Logger.logVerdict(Verdict.CE);
           return;
@@ -211,8 +216,7 @@ const testCommand = (program) => {
         });
         return;
       }
-      // the solution has a good solution but no generator, so the testcase is
-      // typed and its answer is built by the good solution, see Stress
+      // the testcase is typed and its answer is built by the good solution, see Stress
       if (stress?.good && testEntry === null) {
         try {
           compiler.buildFile({ debug: options.debug });
