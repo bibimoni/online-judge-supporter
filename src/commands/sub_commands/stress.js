@@ -27,7 +27,12 @@ const startStressing = async (stress, { count, seed, timeLimit }) => {
     if (result["verdict"] === Verdict.AC) {
       continue;
     }
-    Logger.logVerdict(result["verdict"], { spinner: spinner });
+    // keep the testcase number, it says how many testcases passed before the
+    // failure, so a close solution is easy to tell from a broken one
+    Logger.logVerdict(result["verdict"], {
+      spinner: spinner,
+      note: `on testcase ${index}/${count}`,
+    });
     Logger.input(result["output"]);
     Logger.output(result["solutionOutput"]);
     Logger.answer(result["expected"]);
