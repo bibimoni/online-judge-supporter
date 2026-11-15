@@ -171,10 +171,13 @@ const testCommand = (program) => {
         } catch (_) {
           stress = null;
         }
-        // missing files only matter when the testcase is built by the stress
-        // helper, a testcase from the test folder is complete on its own
+        // a testcase from the test folder is complete on its own, the extra
+        // files are only needed to build one. Without -t the run can still be
+        // "every testcase in the folder", so only complain when there is
+        // nothing to run and a testcase had to be built
         const missing = stress?.missingFiles();
-        if (missing && (testEntry === null || stress.isGenerated())) {
+        const nothingToRun = Object.keys(testcases).length === 0;
+        if (missing && (stress.isGenerated() || (testEntry === null && nothingToRun))) {
           Logger.logErrorSpinner(missing.message);
           return;
         }
@@ -213,8 +216,9 @@ const testCommand = (program) => {
         });
         return;
       }
-      // the testcase is typed and its answer is built by the good solution, see Stress
-      if (stress?.good && testEntry === null) {
+      // nothing to run and there is no generator, so ask for a testcase by hands
+      // and let the good solution build its answer, see Stress
+      if (stress?.good && testEntry === null && Object.keys(testcases).length === 0) {
         try {
           compiler.buildFile({ debug: options.debug });
           stress.good.buildFile({ debug: false });

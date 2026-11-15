@@ -10,7 +10,10 @@ const startStressing = async (stress, { count, seed, timeLimit }) => {
   // one spinner for the whole run, an accepted testcase only updates its text
   // so a long stress test doesn't flood the terminal with AC lines.
   // start() resets the spinner and starts another loop timer, so only the
-  // first testcase starts it and the rest update the text
+  // first testcase starts it and the rest update the text.
+  // update() only stores the text and waits for the next timer tick, and a
+  // testcase can be much faster than the 50ms tick, so the text is rendered
+  // straight away instead of waiting to be redrawn
   const spinner = createSpinner();
   for (let index = 1; index <= count; index++) {
     const text = Logger.info(`Judging testcase ${index}/${count}`);
@@ -18,7 +21,7 @@ const startStressing = async (stress, { count, seed, timeLimit }) => {
       spinner.start({ text: text });
     }
     else {
-      spinner.update({ text: text });
+      spinner.update({ text: text }).spin();
     }
     const result = await stress.judge({
       seed: seed === null ? null : seed + index - 1,
