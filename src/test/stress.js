@@ -12,7 +12,10 @@ import { Exception } from "../error_handler/error.js";
 // the generator, the checker and the good solution have no expected output,
 // so they run with multiTest and get UNKNOWN when they finish normally
 const crashed = (result) => result["verdict"] === Verdict.RE || result["verdict"] === Verdict.TLE;
-const isWrong = (result) => result["verdict"] === Verdict.WA || result["verdict"] === Verdict.RE;
+// a solution that timed out or crashed is not judged against the answer, the
+// verdict is already known
+const isWrong = (result) =>
+  result["verdict"] === Verdict.WA || result["verdict"] === Verdict.RE || result["verdict"] === Verdict.TLE;
 class Stress {
   /**
    * @param {Object} files found by `Stress.find`
