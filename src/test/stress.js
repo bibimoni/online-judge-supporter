@@ -3,9 +3,7 @@ import { TestCase } from "../test/testcase.js";
 import { Verdict } from "../test/verdict.js";
 import { Generator } from "../file_creator/generator.js";
 import { Checker } from "../file_creator/checker.js";
-import { Creator } from "../file_creator/creator.js";
 import { goodMiddleName } from "../config/load_config.js";
-import { fileName, directory, join } from "../path.js";
 import { findCompanionFile } from "../file_creator/utils.js";
 import { Exception } from "../error_handler/error.js";
 
@@ -19,22 +17,17 @@ const isWrong = (result) =>
 class Stress {
   /**
    * @param {Object} files found by `Stress.find`
-   * @param {Object} options onFileCreate and onFolderCreate are invoked when a
-   * testcase is saved, use logger please.
    */
-  constructor(files, { onFileCreate = () => { }, onFolderCreate = () => { } } = {}) {
+  constructor(files) {
     this.filePath = files["filePath"];
-    this.dir = files["dir"];
     this.solution = files["solution"];
     this.generator = files["generator"] ? new Compiler({ filePath: files["generator"] }) : null;
     this.checker = files["checker"] ? new Compiler({ filePath: files["checker"] }) : null;
     this.good = files["good"] ? new Compiler({ filePath: files["good"] }) : null;
-    this.onFileCreate = onFileCreate;
-    this.onFolderCreate = onFolderCreate;
   }
   /**
    * find the files needed for the stress test, they are all placed next to the
-   * source file: `<problem>__Generator.<ext>`, `<problem>__Checker.cpp`
+   * source file: `<problem>__Generator.<ext>`, `<problem>__Checker.<ext>`
    * and `<problem>__Good.<ext>`
    *
    * @param {String} filePath path to the source file
@@ -43,7 +36,6 @@ class Stress {
   static find(filePath) {
     return new Stress({
       filePath: filePath,
-      dir: directory(filePath),
       solution: new Compiler({ filePath: filePath }),
       generator: Generator.find(filePath),
       checker: Checker.find(filePath),
@@ -117,7 +109,6 @@ class Stress {
         "solutionOutput": result["output"],
       });
     }
-    this.#save(testcase);
     return this.#result(Verdict.AC, { "output": testcase.input });
   }
   /**
@@ -187,12 +178,6 @@ class Stress {
       "output": testcase.input,
       "error": result["error"],
       "expected": testcase.output,
-    });
-  }
-  #save(testcase) {
-    Creator.addTestCaseToFolder(this.dir, fileName(this.filePath), testcase, {
-      onFileCreate: this.onFileCreate,
-      onFolderCreate: this.onFolderCreate,
     });
   }
   #result(verdict, { output = "", error = "", expected = "", solutionOutput = "" } = {}) {
