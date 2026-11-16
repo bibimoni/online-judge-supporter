@@ -5,9 +5,7 @@ import { Exception } from "../../error_handler/error.js";
 import { Verdict } from "../../test/verdict.js";
 import { createSpinner } from "nanospinner";
 import { Creator } from "../../file_creator/creator.js";
-import { captureUserInput } from "../../file_creator/utils.js";
 import { testcaseStartIndex } from "../../config/load_config.js";
-import { Stress } from "../../test/stress.js";
 
 const path = process.cwd();
 const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
@@ -32,48 +30,6 @@ const startJudging = async (testcase, compiler, { multiTest = false } = {}) => {
         Logger.answer(testcase.output);
       }
     }
-  }
-};
-// the testcase is not built by hands, the generator builds it with the
-// index as the seed so the same index always gives the same testcase
-const startJudgingWithStress = async (stress, { index = null, testcase = null } = {}) => {
-  const spinner = createSpinner();
-  Logger.logInfoSpinner(`Testcase ${index} (built by the generator)`);
-  spinner.start({ text: Logger.info(`Running...`) });
-  const result = await stress.judge({
-    seed: index === null ? null : parseInt(index),
-    testcase: testcase,
-  });
-  Logger.logVerdict(result["verdict"], { spinner: spinner });
-  if (result["verdict"] === Verdict.AC) {
-    return;
-  }
-  Logger.input(result["output"]);
-  Logger.output(result["solutionOutput"]);
-  Logger.answer(result["expected"]);
-  if (result["error"]) {
-    Logger.errorOutput(result["error"]);
-  }
-};
-// judge the solution with the testcase typed by hands, the good solution
-// builds the answer so the testcase is saved and can be found again
-const startStressJudging = async (stress) => {
-  Logger.logInfoSpinner("Enter Input (press Ctrl + C to exit)");
-  const testcase = { input: await captureUserInput() };
-  const spinner = createSpinner();
-  spinner.start({ text: Logger.info(`Running...`) });
-  const result = await stress.judge({ testcase: testcase });
-  Logger.logVerdict(result["verdict"], { spinner: spinner });
-  if (result["verdict"] === Verdict.AC) {
-    return;
-  }
-  if (result["verdict"] !== Verdict.RE) {
-    Logger.input(result["output"]);
-    Logger.output(result["solutionOutput"]);
-  }
-  Logger.answer(result["expected"]);
-  if (result["error"]) {
-    Logger.errorOutput(result["error"]);
   }
 };
 const startJudgeWithDebug = async (testcase, compiler) => {
@@ -161,73 +117,6 @@ const testCommand = (program) => {
       }
       catch (e) {
         Logger.logErrorSpinner(e.message);
-        return;
-      }
-      // a testcase typed by hands, or a testcase built by the generator, see Stress
-      let stress = null;
-      if (!options.interactive && !options.view && !options.add) {
-        try {
-          stress = Stress.find(filePath);
-        } catch (_) {
-          stress = null;
-        }
-        // a testcase from the test folder is complete on its own, the extra
-        // files are only needed to build one. Without -t the run can still be
-        // "every testcase in the folder", so only complain when there is
-        // nothing to run and a testcase had to be built
-        const missing = stress?.missingFiles();
-        const nothingToRun = Object.keys(testcases).length === 0;
-        if (missing && (stress.isGenerated() || (testEntry === null && nothingToRun))) {
-          Logger.logErrorSpinner(missing.message);
-          return;
-        }
-      }
-      // typing a testcase is always allowed, -t is only for the ones built by the generator
-      if (stress?.isGenerated() && options.multi_test) {
-        Logger.logErrorSpinner("A testcase built by the generator has no multitest, please remove -m/--multi_test");
-        return;
-      }
-      if (stress?.isGenerated()) {
-        // the generator builds the testcase from the index, a testcase in the
-        // test folder is only used when it was typed
-        try {
-          compiler.buildFile({ debug: options.debug });
-          stress.good.buildFile({ debug: false });
-          stress.generator?.buildFile({ debug: false });
-          stress.checker?.buildFile({ debug: false });
-        } catch (_) {
-          Logger.logVerdict(Verdict.CE);
-          return;
-        }
-        const generated = testcases[testEntry]?.isMultiTest ? null : testcases[testEntry];
-        if (options.debug) {
-          // show the program's own output and stderr instead of judging it
-          const built = await stress.generate({ index: testIndex, testcase: generated });
-          if (built === null) {
-            Logger.logVerdict(Verdict.CRASH);
-            return;
-          }
-          await startJudgeWithDebug({ ...built, fileName: `generated (seed ${testIndex})` }, compiler);
-          return;
-        }
-        await startJudgingWithStress(stress, {
-          index: testIndex,
-          testcase: generated,
-        });
-        return;
-      }
-      // nothing to run and there is no generator, so ask for a testcase by hands
-      // and let the good solution build its answer, see Stress
-      if (stress?.good && testEntry === null && Object.keys(testcases).length === 0) {
-        try {
-          compiler.buildFile({ debug: options.debug });
-          stress.good.buildFile({ debug: false });
-          stress.checker?.buildFile({ debug: false });
-        } catch (_) {
-          Logger.logVerdict(Verdict.CE);
-          return;
-        }
-        await startStressJudging(stress);
         return;
       }
       try {
