@@ -26,21 +26,47 @@ class Codeforces {
     return `https://codeforces.com/contest/${contest_id}/problem/${task_id}`;
   }
   /**
-   * read the text of an input/output block of a sample, on codeforces every
-   * line is a div, so `.text()` glues them together ("1", "2", "10" becomes
-   * "1210"), the lines have to be joined with a newline
+   * read the text of an input/output block of a sample. Codeforces uses three
+   * markups for the same thing and `.text()` gets all of them wrong:
+   *   - one div per line (`test-example-line`): glued, "1","2","10" -> "1210"
+   *   - one line with <br> between the lines: glued, "3 7<br>2 1" -> "3 72 1"
+   *   - plain text: already has its newlines, return it as is
    *
    * @param {cheerio.CheerioAPI} $ the loaded document, not a module global
    * @param {cheerio.Cheerio} pre the pre element of the sample
    * @returns {String}
    */
   static readSampleText($, pre) {
-    if (!pre.children().length) {
-      return pre.text();
+    const lineElements = pre
+      .children()
+      .filter((_, child) => child.tagName !== 'br');
+    // div per line
+    if (lineElements.length > 0) {
+      const lines = [];
+      lineElements.each((_, line) => lines.push($(line).text()));
+      return lines.join("\n");
     }
+    // plain text, but <br> is a line break that text() drops
     const lines = [];
-    pre.children().each((_, line) => lines.push($(line).text()));
-    return lines.join("\n");
+    pre.contents().each((_, node) => {
+      lines.push(node.type === 'tag' && node.tagName === 'br' ? "\n" : $(node).text());
+    });
+    return lines.join("");
+  }
+  /**
+   * the odd/even class codeforces puts on a sample line, which tells where one
+   * subtest of a multitest sample ends and the next begins
+   *
+   * @param {cheerio.Cheerio} line
+   * @returns {String|null} the class, or null when the line has none
+   */
+  static lineState(line) {
+    const className = line.attr('class');
+    if (!className) {
+      return null;
+    }
+    const state = className.split(' ')[1];
+    return state ? state : null;
   }
   getProblem(contest_id, task_id) {
     return this.getProblemFromUrl(this.convertToUrl(contest_id, task_id));
@@ -69,25 +95,26 @@ class Codeforces {
           let test = new TestCase();
           let small_unit_tests = [];
           let current_input = "";
-          if ($(input).children().length) {
-            let multi_test = false;
+          // only a div per line can be split into subtests, a sample written
+          // with <br> or plain text has no line elements to tell them apart
+          const lineElements = $(input)
+            .children()
+            .filter((_, child) => child.tagName !== 'br');
+          if (lineElements.length > 1) {
             let previousLineState = "test-example-line-odd"; // the first subtest class is odd
             let currentMultiInput = "";
-            $(input).children().each((_, single_test) => {
-              current_input += $(single_test).text() + '\n';
-              if (!multi_test) {
-                multi_test = true;
+            lineElements.each((_, single_test) => {
+              const line = $(single_test).text();
+              current_input += line + '\n';
+              // a line without the class belongs to the current subtest
+              const currentLineState = Codeforces.lineState($(single_test));
+              if (currentLineState !== null && currentLineState != previousLineState) {
+                small_unit_tests.push(new TestCase({ input: currentMultiInput }));
+                previousLineState = currentLineState;
+                currentMultiInput = line + '\n';
               }
               else {
-                const currentLineState = $(single_test).attr('class').split(' ')[1];
-                if (currentLineState != previousLineState) {
-                  small_unit_tests.push(new TestCase({ input: currentMultiInput }));
-                  previousLineState = currentLineState;
-                  currentMultiInput = $(single_test).text() + '\n';
-                }
-                else {
-                  currentMultiInput += $(single_test).text() + '\n';
-                }
+                currentMultiInput += line + '\n';
               }
             });
             if (currentMultiInput.length > 0) {
