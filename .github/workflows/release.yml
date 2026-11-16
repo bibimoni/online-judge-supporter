@@ -6,9 +6,6 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    # the NPM_TOKEN secret lives in an environment of the same name, so the job
-    # has to declare it or `secrets.NPM_TOKEN` is empty and npm has no auth
-    environment: NPM_TOKEN
     permissions:
       contents: write
       id-token: write
