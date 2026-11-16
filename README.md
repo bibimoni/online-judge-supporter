@@ -81,17 +81,14 @@ int main() {
 ```bash
 # generate testcases and judge them with the checker
 ojs stress a.cpp --seed 1 --time 2000
-
-# no generator: type a testcase once, the good solution builds the answer
-ojs test a.cpp
-
-# a testcase built by the generator, the seed is the index so it's reproducible
-ojs test a.cpp -t 1
 ```
 
 A testcase that passes is saved into `__test_<problem>/`, so `ojs test` can replay it later.
 `ojs stress` stops at the first testcase that isn't accepted and shows its input, the answer of the
-good solution and either the checker's reason or a line by line difference.
+good solution and the checker's reason when there is one.
+
+`ojs test` only reads `__test_<problem>/`: with no `-t` it runs every testcase in the folder,
+with `-t N` just that one. A generator or a good solution next to the source changes nothing.
 
 ## Config
 In your home directory, a file named `online-judge-supporter_config.json` will appear,
