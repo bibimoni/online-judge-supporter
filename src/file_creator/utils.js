@@ -32,7 +32,10 @@ const captureUserInput = () => {
             userInput += input.toString() + "\n";
         });
         rl.on("close", () => {
-            resolve(userInput);
+            // Ctrl + D on a line typed without Enter: readline closes without
+            // emitting it as a "line", but the text is still pending on rl.line
+            const pending = rl.line;
+            resolve(pending && pending.length > 0 ? userInput + pending + "\n" : userInput);
         });
     });
 };
